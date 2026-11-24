@@ -364,6 +364,24 @@ covers setup, retries, recovery, restarts, artifacts, connection rules and sched
 and [`examples/server-recovery.ts`](https://github.com/nika-open/nika-client/blob/main/examples/server-recovery.ts)
 recovers a job across two processes.
 
+**What a 0.125 server adds.** `nika serve` 0.125 attributes a job to the
+`owner` and `labels` its caller states, lists jobs (`GET /v1/jobs`), shares
+its workers fairly between owners, caps the model calls in flight per
+provider, forgets settled jobs after `--job-retention`, and can start an
+interrupted job again as a new attempt. This package keeps the 0.124.5 API:
+it states no owner and has no method for these routes yet, so call them over
+HTTP ([docs/http-api.md](https://github.com/nika-open/nika-client/blob/main/docs/http-api.md)
+lists them). Two server settings change what `run()` sees:
+
+- `--max-queued-per-owner`: the jobs this package admits share one owner
+  lane, and an admission past the bound rejects with `NikaOperationError`
+  (`429 owner_queue_full`). Nothing was admitted; the same call with the same
+  `idempotencyKey` is admitted once the lane has room.
+- `--retry-interrupted restart` or `resume`, or a retry request: the job
+  keeps its id but gets a new execution and trace identity, which a run this
+  package already follows refuses with `NikaProtocolError`. Leave the default
+  (`off`) while this package observes those jobs.
+
 **Watch the server lines above run, then one job, a retry and a wrong token.**
 
 <p align="center">
@@ -758,7 +776,7 @@ the tools and the rules.
 | 🦋 | [nika](https://github.com/nika-open/nika) | The engine and CLI: write, check, run and verify AI workflows |
 | 📖 | [nika-docs](https://github.com/nika-open/nika-docs) | The documentation, live at [docs.nika.sh](https://docs.nika.sh) |
 | 📜 | [nika-spec](https://github.com/nika-open/nika-spec) | The language specification and the suite that proves an engine follows it |
-| 🧩 | [nika-vscode](https://github.com/nika-open/nika-vscode) | The editor extension, frozen at 0.120 and not qualified with 0.124: use `nika lsp` and the JSON Schema |
+| 🧩 | [nika-vscode](https://github.com/nika-open/nika-vscode) | The editor extension, frozen at 0.120 and not qualified with 0.125: use `nika lsp` and the JSON Schema |
 | 🟦 | **[nika-client](https://github.com/nika-open/nika-client)** | **Run and verify workflows from TypeScript** |
 | ✅ | [nika-action](https://github.com/nika-open/nika-action) | A GitHub Action that posts a `nika check` verdict on your pull requests |
 | 🚀 | [nika-actions-starter](https://github.com/nika-open/nika-actions-starter) | A ready template: workflows, editor setup and CI from the first push |
