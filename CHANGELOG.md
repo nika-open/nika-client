@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.125.0] - 2026-11-24
+
+### Changed
+
+- **Release train 0.125.0, in lockstep with engine `v0.125.0`.** The machine
+  protocol stays 2. `package.json` is 0.125.0 and `sync:native-versions` moved
+  the four native payload manifests, the `optionalDependencies` and the
+  lockfile with it. The package's API is the one of 0.124.5: no method,
+  option, export or type changed.
+- The pinned `openapi.json` is the served document of engine 0.125.0, and
+  `src/generated/openapi.d.ts` is regenerated from it
+  (`npm run generate:types`). Against 0.124.5's, the document adds seven
+  operations, `GET /v1/jobs`, `GET /v1/jobs/{id}/attempts`,
+  `POST /v1/jobs/{id}/retry`, `GET /v1/occupancy`, `GET /v1/schedules`,
+  `DELETE /v1/schedules/{id}` and `POST /v1/schedules/{id}/trigger`, with
+  eight schemas (`JobList`, `JobSummary`, `JobAttempts`, `JobAttempt`,
+  `JobRetryRequest`, `Occupancy`, `ScheduleList`, `ScheduleRemoved`). It adds
+  `owner`, `labels` and `retry` to `JobByName` and `owner` and `labels` to
+  `SchedulePut`, a `429 owner_queue_full` answer to `POST /v1/jobs`, an
+  `attempt` query and a `400` answer to `GET /v1/jobs/{id}/trace/verify`, and
+  its `/health` example names job store format 4. No schema this package
+  reads closed changed: the two that gained members are request bodies the
+  package writes from its own list of fields. The identity probe keeps
+  machine protocol 2 and the snapshot, check-report and event clocks of
+  0.124.5, and `/health` lists five more capabilities (`jobAttribution`,
+  `jobList`, `occupancy`, `jobRetry` and, beside `schedule`,
+  `scheduleManage`), none of which this package requires.
+- **The new routes are pinned, not wrapped.** `check:coverage` demands that
+  the SDK call every live path. It now names the live operations this
+  package does not wrap yet, each with the engine release and capability
+  that bring it, and fails on an entry that is not an operation of the
+  pinned contract, on a listed path the SDK calls, and on a route it calls
+  absent that the contract serves. `/v1/schedules/{id}/trigger` is no longer
+  listed absent. The methods for these routes are a later change; `run()`,
+  `schedule()` and `traceVerify()` send none of the new members, so a
+  verification still reads a job's latest attempt.
+- Engine 0.125.0 also carries security fixes. They are listed in its
+  [release notes](https://github.com/nika-open/nika/releases/tag/v0.125.0).
+
+### Documentation
+
+- The README, `SECURITY.md` and `AGENTS.md` call 0.125 the current release
+  line and 0.124.x the previous one; native video is planned for a later
+  release.
+- `docs/upgrading-to-0.123.md` gains « From 0.124 to 0.125 »: the same
+  protocol, the routes the package does not wrap yet, the job store format 4
+  an older engine refuses (keep a copy of the state root while a downgrade
+  must stay possible), `429 owner_queue_full` as a `NikaOperationError`, and
+  a job started again by the server, whose new attempt an observer of the
+  earlier one refuses. Its steps install 0.125.0 and name the image
+  `ghcr.io/nika-open/nika:0.125.0`, its table adds the 0.125 pair, and it
+  links the engine's 0.125.0 release notes.
+- `docs/http-api.md` lists the seven operations as not wrapped yet;
+  `docs/compile.md` adds 0.125.0 to the engine history (machine protocol 2,
+  the compile door of 0.124.5, five more capabilities); `docs/glossary.md`,
+  `docs/migrating-to-0.116.md`, `docs/runs.md` and `docs/architecture.md`
+  name 0.125.
+
 ## [0.124.5] - 2026-11-20
 
 ### Changed
@@ -1698,7 +1756,8 @@ Initial public release. Full rewrite from v0.1.0.
 - Error hierarchy completely redesigned
 - License changed from MIT to AGPL-3.0-or-later
 
-[Unreleased]: https://github.com/nika-open/nika-client/compare/v0.124.5...HEAD
+[Unreleased]: https://github.com/nika-open/nika-client/compare/v0.125.0...HEAD
+[0.125.0]: https://github.com/nika-open/nika-client/compare/v0.124.5...v0.125.0
 [0.124.5]: https://github.com/nika-open/nika-client/compare/v0.124.4...v0.124.5
 [0.124.4]: https://github.com/supernovae-st/nika-client/compare/v0.124.3...v0.124.4
 [0.124.3]: https://github.com/supernovae-st/nika-client/compare/v0.124.2...v0.124.3

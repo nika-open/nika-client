@@ -7,14 +7,14 @@ handling, transport, and dependency supply chain matter.
 
 ## Supported Versions
 
-0.124 is the current release line. Work stays focused on maintenance,
+0.125 is the current release line. Work stays focused on maintenance,
 security and the media capabilities workflows need; native video is planned
-for 0.125. The **0.124.x** line (the latest published package version) and
-`main` receive fixes, which ship as 0.124.x releases of `@nika-open/nika`.
-Older versions, including the previous 0.123.x line, and the retired
-`@supernovae-st/nika` and `@supernovae-st/nika-client` package names,
-receive none. See the
-[known limits](https://docs.nika.sh/changelog/known-limits) of 0.124.
+for a later release. The **0.125.x** line (the latest published package
+version) and `main` receive fixes, which ship as 0.125.x releases of
+`@nika-open/nika`. Older versions, including the previous 0.124.x line, and
+the retired `@supernovae-st/nika` and `@supernovae-st/nika-client` package
+names, receive none. See the
+[known limits](https://docs.nika.sh/changelog/known-limits) of 0.125.
 
 ## Reporting a Vulnerability
 

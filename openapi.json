@@ -865,7 +865,7 @@
             "properties": {
               "jobs": {
                 "examples": [
-                  3
+                  4
                 ],
                 "minimum": 1,
                 "type": "integer"
@@ -969,9 +969,142 @@
         ],
         "type": "object"
       },
+      "JobAttempt": {
+        "additionalProperties": true,
+        "properties": {
+          "attempt": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "ended_at": {
+            "description": "For an attempt queued again after losing its resident, when it was queued again.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "execution_id": {
+            "description": "Absent on an attempt that waits and has not started.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "How this attempt was started again; absent on the first.",
+            "enum": [
+              "restart",
+              "resume"
+            ],
+            "type": "string"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/JobReceipt"
+          },
+          "resumed_from": {
+            "description": "The trace this attempt continues, when it resumed the one before it.",
+            "type": "string"
+          },
+          "spend": {
+            "additionalProperties": false,
+            "description": "On an attempt that was started again: what the decision counted against the job's ceiling. `unknown` is present when some of it could not be read; it never counts for zero.",
+            "properties": {
+              "unknown": {
+                "const": true,
+                "type": "boolean"
+              },
+              "usd": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "usd"
+            ],
+            "type": "object"
+          },
+          "started_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "trace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt",
+          "status"
+        ],
+        "type": "object"
+      },
+      "JobAttempts": {
+        "additionalProperties": true,
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/JobAttempt"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "job_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policy": {
+            "additionalProperties": true,
+            "properties": {
+              "max_attempts": {
+                "maximum": 16,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "on_interrupted": {
+                "enum": [
+                  "off",
+                  "restart",
+                  "resume"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "on_interrupted",
+              "max_attempts"
+            ],
+            "type": "object"
+          },
+          "retry_reason": {
+            "description": "Present when `retry_state` is `exhausted` or `refused`.",
+            "enum": [
+              "retry_exhausted",
+              "effects_need_consent",
+              "unknown_spend",
+              "budget_exhausted",
+              "resume_refused"
+            ],
+            "type": "string"
+          },
+          "retry_state": {
+            "description": "`queued`: a new attempt waits in its owner's lane. `exhausted`: the job took its bound of attempts, so a request would be refused. `refused`: the resident decided not to start it again, and says why (`retry_reason`, and the code of the job's last event or error). `none`: nothing waits and nothing was refused, including a job whose latest attempt failed for a reason of its own while its bound leaves room. Open: a later engine may add a word.",
+            "enum": [
+              "none",
+              "queued",
+              "exhausted",
+              "refused"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "policy",
+          "retry_state",
+          "attempts"
+        ],
+        "type": "object"
+      },
       "JobByName": {
         "additionalProperties": false,
-        "description": "The by-name form (ADR-131): a workflow the served registry lists (GET /v1/workflows · project-root-relative, `.nika`). The resident captures its world exactly as a schedule does — the one owner of the snapshot and its digest domain. Idempotency binds to these request bytes. Optional `access` is the same pin as CLI `--access` (a pin is a pin). Absent: the resident's unpinned plan. Snapshot bodies reject both access and inputs overlays, including null or empty maps. Optional inputs are literal JSON values checked against declared keys, types and required values before a job exists; strings are never CLI @env instructions or expressions.",
+        "description": "The by-name form (ADR-131): a workflow the served registry lists (GET /v1/workflows · project-root-relative, `.nika`). The resident captures its world exactly as a schedule does — the one owner of the snapshot and its digest domain. Idempotency binds to these request bytes. Optional `access` is the same pin as CLI `--access` (a pin is a pin). Absent: the resident's unpinned plan. Snapshot bodies reject both access and inputs overlays, including null or empty maps. Optional inputs are literal JSON values checked against declared keys, types and required values before a job exists; strings are never CLI @env instructions or expressions. Optional `owner` and `labels` (health capability `jobAttribution`) are what the caller states about the job so its application can find it again (GET /v1/jobs): they are attribution inside one authority domain, never an authorization boundary, and whoever holds the token reads every job. They bind the exact request identity like every other member; a snapshot body carries none, and a cost review binds none (they are stated on the admission that consumes it). Optional `retry` (health capability `jobRetry`, ADR-156) states whether the job is started again when its run loses its owner; it binds the request identity too.",
         "properties": {
           "access": {
             "description": "Access pin, same vocabulary as `--access` (class or harness id). A pin never silently substitutes a metered seat.",
@@ -982,6 +1115,54 @@
           "inputs": {
             "additionalProperties": true,
             "description": "Literal JSON overrides for declared workflow inputs. Unknown keys, wrong types and missing required values refuse with 422; defaults remain authored. A present null is refused. Inputs bind exact request identity and survive durable queue recovery; workflow bytes are unchanged.",
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "description": "At most 16 caller labels. A key is 1 to 64 bytes of letters, digits and `._/-` (no colon); a value is at most 256 bytes of text without control characters. Outside these bounds, or null: 422 invalid_job_labels.",
+            "maxProperties": 16,
+            "propertyNames": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._/-]+$"
+            },
+            "type": "object"
+          },
+          "owner": {
+            "description": "Who the caller attributes this job to: opaque to the engine. Outside its bounds, or null: 422 invalid_job_owner. Require the `jobAttribution` capability first: a resident without it refuses the member as an unknown field.",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:@-]+$",
+            "type": "string"
+          },
+          "retry": {
+            "additionalProperties": false,
+            "description": "What the caller states about starting this job again when its run loses its owner: the resident stopped or was killed while the job ran (ADR-156). Stating it, even empty, is the caller's consent to run the workflow's effects a second time. Absent: the resident's own policy applies, and only to a workflow the engine classes as free of external effects. Unknown members, null, or a value outside its bounds: 422 invalid_job_retry. Refused on a request that consumes a cost review. Require the `jobRetry` capability first: a resident without it refuses the member as an unknown field.",
+            "properties": {
+              "max_attempts": {
+                "description": "The most attempts this job may take, counting the first. It lowers the resident's `--retry-max-attempts`, never raises it.",
+                "maximum": 16,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "max_cost_usd": {
+                "description": "A ceiling for the re-attempts alone (USD). Stating it accepts that an attempt whose spend could not be read is followed by another; without it such a job stays `interrupted` (`unknown_spend`), whether or not a ceiling bounds the job. It never raises the ceiling that covers every attempt of the job.",
+                "minimum": 0,
+                "type": "number"
+              },
+              "on_interrupted": {
+                "description": "`resume` serves the tasks the interrupted attempt's journal completed and runs the rest, once the journal is judged as `nika run --resume` judges one; a journal that does not pass leaves the job `interrupted` (`resume_refused`). `restart` runs the whole workflow again as a new attempt of the same job, with its own execution and trace identity. `off` leaves the job `interrupted`. Absent: the resident's `--retry-interrupted`.",
+                "enum": [
+                  "off",
+                  "restart",
+                  "resume"
+                ],
+                "type": "string"
+              }
+            },
             "type": "object"
           },
           "workflow": {
@@ -1064,6 +1245,27 @@
           "sequence",
           "kind",
           "status"
+        ],
+        "type": "object"
+      },
+      "JobList": {
+        "additionalProperties": true,
+        "description": "One page of the job list, newest admission first. Open by contract: a later engine may add a member, and a client ignores the members it does not know.",
+        "properties": {
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/JobSummary"
+            },
+            "maxItems": 200,
+            "type": "array"
+          },
+          "next_cursor": {
+            "description": "Present while an older match exists: send it back as `cursor` with the same filters. Absent on the last page.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobs"
         ],
         "type": "object"
       },
@@ -1199,6 +1401,35 @@
         ],
         "type": "object"
       },
+      "JobRetryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "description": "The attempt this request retries, the first being 1: the job's latest. Naming it makes the request safe to send again.",
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "max_cost_usd": {
+            "description": "A ceiling for the re-attempts alone (USD), in force for the attempts after this one until another request states one. Stating it accepts that an attempt whose spend could not be read is followed by another. It never raises the ceiling that covers every attempt of the job.",
+            "minimum": 0,
+            "type": "number"
+          },
+          "mode": {
+            "description": "`restart` runs the captured workflow from its first task. `resume` serves the tasks the attempt's journal completed and runs the rest, once the journal is judged as `nika run --resume` judges one; the resident never falls back to `restart` on its own.",
+            "enum": [
+              "restart",
+              "resume"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt",
+          "mode"
+        ],
+        "type": "object"
+      },
       "JobStatus": {
         "description": "queued and running: the resident owns the execution. interrupted: execution ownership was lost and effect settlement is unknown — an EVIDENCE state (the journal is INCOMPLETE), never a run state (ADR-129). paused, succeeded, failed and cancelled: the run's own settlement, the words its terminal frame carries (ADR-128).",
         "enum": [
@@ -1225,6 +1456,88 @@
         ],
         "type": "object"
       },
+      "JobSummary": {
+        "additionalProperties": true,
+        "description": "What the list shows of one job. Open by contract, like `JobList`. It never carries inputs, outputs, a receipt or a settlement.",
+        "properties": {
+          "attempts": {
+            "description": "How many attempts the job took or holds, the first included (ADR-156); `GET /v1/jobs/{id}/attempts` lists them.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "created_at": {
+            "description": "When the resident admitted the job (UTC). For a job admitted before the resident dated admissions: the date of its first dated event, or absent.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "error": {
+            "additionalProperties": false,
+            "description": "On a failed job only: the redacted diagnosis GET /v1/jobs/{id} carries.",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          },
+          "execution_id": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "What the caller stated; empty on an unlabelled job.",
+            "type": "object"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/JobOrigin"
+          },
+          "owner": {
+            "description": "What the caller stated; absent on an unattributed job.",
+            "type": "string"
+          },
+          "retry_state": {
+            "description": "`queued`: a new attempt waits in its owner's lane. `exhausted`: the job took its bound of attempts, so a request would be refused. `refused`: the resident decided not to start it again, and says why (`retry_reason`, and the code of the job's last event or error). `none`: nothing waits and nothing was refused, including a job whose latest attempt failed for a reason of its own while its bound leaves room. Open: a later engine may add a word.",
+            "enum": [
+              "none",
+              "queued",
+              "exhausted",
+              "refused"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "workflow": {
+            "description": "The served workflow name captured at admission.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "workflow",
+          "origin",
+          "labels"
+        ],
+        "type": "object"
+      },
       "JournalEvidence": {
         "additionalProperties": false,
         "description": "Reported journal delivery loss, independent of execution status. The reason classifies the mirror's first error without exposing OS text or paths. Absence is not a claim that a journal exists.",
@@ -1244,6 +1557,168 @@
         "required": [
           "status",
           "reason"
+        ],
+        "type": "object"
+      },
+      "Occupancy": {
+        "additionalProperties": true,
+        "description": "What the resident holds now against its limits. Open by contract: a later engine may add a member, and a client ignores the members it does not know.",
+        "properties": {
+          "jobs": {
+            "additionalProperties": true,
+            "properties": {
+              "max_concurrent": {
+                "description": "Jobs the resident runs at once.",
+                "minimum": 1,
+                "type": "integer"
+              },
+              "max_concurrent_per_owner": {
+                "allOf": [
+                  {
+                    "minimum": 1,
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                ],
+                "description": "Jobs one owner runs at once; null when unbounded. Its other jobs wait."
+              },
+              "max_queued_per_owner": {
+                "allOf": [
+                  {
+                    "minimum": 1,
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                ],
+                "description": "Jobs one owner may have waiting; null when unbounded. Past it an admission answers 429 `owner_queue_full`."
+              },
+              "queue_capacity": {
+                "description": "Jobs that may wait, all owners together. Past it an admission answers 503 `queue_full`.",
+                "minimum": 1,
+                "type": "integer"
+              },
+              "queued": {
+                "allOf": [
+                  {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                ],
+                "description": "Jobs admitted and waiting for a worker."
+              },
+              "running": {
+                "allOf": [
+                  {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                ],
+                "description": "Jobs a worker runs now."
+              }
+            },
+            "required": [
+              "running",
+              "queued",
+              "max_concurrent",
+              "queue_capacity",
+              "max_concurrent_per_owner",
+              "max_queued_per_owner"
+            ],
+            "type": "object"
+          },
+          "owners": {
+            "description": "The owners that hold a job now, busiest first.",
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "owner": {
+                  "description": "The stated owner; null for the jobs that state none, which share one lane.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "queued": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "running": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "owner",
+                "running",
+                "queued"
+              ],
+              "type": "object"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "owners_omitted": {
+            "allOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              }
+            ],
+            "description": "Owners that hold a job and are not named above."
+          },
+          "providers": {
+            "description": "The providers the operator capped (`--provider-concurrency`), by id. A provider with no cap is not listed: the resident does not count its calls. Empty when none is capped.",
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "in_flight": {
+                  "allOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  ],
+                  "description": "Calls that hold a slot now: sent and not yet answered."
+                },
+                "max_concurrent": {
+                  "description": "Model calls this provider may have in flight at once, all jobs together.",
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "provider": {
+                  "description": "The canonical provider id.",
+                  "type": "string"
+                },
+                "waiting": {
+                  "allOf": [
+                    {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  ],
+                  "description": "Calls that wait for a slot. They are sent in turn as slots free."
+                }
+              },
+              "required": [
+                "provider",
+                "max_concurrent",
+                "in_flight",
+                "waiting"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "jobs",
+          "owners",
+          "owners_omitted",
+          "providers"
         ],
         "type": "object"
       },
@@ -1476,6 +1951,28 @@
         ],
         "type": "object"
       },
+      "ScheduleList": {
+        "additionalProperties": true,
+        "description": "Every schedule the resident holds: API schedules by id, then project beats by id. Open by contract: a later engine may add a member.",
+        "properties": {
+          "schedules": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleStatus"
+            },
+            "maxItems": 320,
+            "type": "array"
+          },
+          "truncated": {
+            "description": "True when the resident holds more schedules than one list answers.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "schedules",
+          "truncated"
+        ],
+        "type": "object"
+      },
       "SchedulePreconditionFailed": {
         "additionalProperties": false,
         "properties": {
@@ -1550,6 +2047,20 @@
             ],
             "type": "string"
           },
+          "labels": {
+            "additionalProperties": {
+              "maxLength": 256,
+              "type": "string"
+            },
+            "description": "The labels every job this schedule starts carries, under the law of `labels` on POST /v1/jobs. Part of the schedule revision only when stated.",
+            "maxProperties": 16,
+            "propertyNames": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._/-]+$"
+            },
+            "type": "object"
+          },
           "maxCostUsd": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -1572,6 +2083,13 @@
               "queue",
               "replace"
             ],
+            "type": "string"
+          },
+          "owner": {
+            "description": "Health capability `scheduleManage`. Who the jobs this schedule starts are attributed to: every job it fires or a trigger admits carries it (GET /v1/jobs?owner=). The same law as `owner` on POST /v1/jobs: attribution inside one authority domain, never an authorization boundary. Part of the schedule revision only when stated, so a schedule that states none keeps its revision.",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:@-]+$",
             "type": "string"
           },
           "pauseReason": {
@@ -1634,6 +2152,31 @@
           "when",
           "maxCostUsd",
           "missed"
+        ],
+        "type": "object"
+      },
+      "ScheduleRemoved": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "removed": {
+            "const": true,
+            "type": "boolean"
+          },
+          "revision": {
+            "description": "The revision that was removed.",
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "removed",
+          "id",
+          "revision"
         ],
         "type": "object"
       },
@@ -1824,9 +2367,9 @@
     }
   },
   "info": {
-    "description": "Authenticated loopback remote execution, declarative schedules, verified downloads of the artifacts a settled job's sealed journal records, and stateless source-only authoring (POST /v1/compile never runs, admits or writes). Schedule list/delete/trigger/backfill, /v1/arm, and POST /v1/run are absent.",
+    "description": "Authenticated loopback remote execution, declarative schedules, verified downloads of the artifacts a settled job's sealed journal records, and stateless source-only authoring (POST /v1/compile never runs, admits or writes). Schedule backfill, /v1/arm, and POST /v1/run are absent.",
     "title": "nika serve",
-    "version": "0.124.5"
+    "version": "0.125.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -2123,8 +2666,173 @@
       }
     },
     "/v1/jobs": {
+      "get": {
+        "description": "Health capability `jobList`. One page of the jobs this resident keeps, newest admission first, as light summaries: a summary never carries inputs, outputs, a receipt or a settlement (read them on GET /v1/jobs/{id}). Every query member is optional and they combine with AND. The list is a view inside one authority domain: filtering by `owner` is never an authorization boundary, and whoever holds the token reads every job. Pages are stable: a job admitted while a caller pages is newer than every page still to come, so no summary repeats or is skipped; a job the resident stopped keeping simply no longer appears. An unknown member, a repeated single member or a value outside its bounds is refused, never ignored.",
+        "parameters": [
+          {
+            "description": "The exact owner the job's caller stated.",
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._:@-]+$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Any of these statuses. Repeat the member or separate values with commas.",
+            "explode": true,
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/JobStatus"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The exact served workflow name captured at admission.",
+            "in": "query",
+            "name": "workflow",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "description": "`manual`: submitted through POST /v1/jobs. `schedule`: fired by a resident schedule.",
+            "in": "query",
+            "name": "origin",
+            "required": false,
+            "schema": {
+              "enum": [
+                "manual",
+                "schedule"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "`key:value`, split on the first colon. Repeatable, at most 16; every pair must be a label of the job.",
+            "explode": true,
+            "in": "query",
+            "name": "label",
+            "required": false,
+            "schema": {
+              "items": {
+                "pattern": "^[A-Za-z0-9._/-]{1,64}:",
+                "type": "string"
+              },
+              "maxItems": 16,
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Admitted strictly after this RFC 3339 instant. Write a `+` offset as `%2B`. A job admitted before the resident dated admissions is placed by its first dated event, and left out of a dated listing when it has none.",
+            "in": "query",
+            "name": "created_after",
+            "required": false,
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Admitted strictly before this RFC 3339 instant.",
+            "in": "query",
+            "name": "created_before",
+            "required": false,
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The `next_cursor` of the previous page, sent back unchanged with the same filters. Opaque: never build or parse one.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "maxLength": 32,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobList"
+                }
+              }
+            },
+            "description": "One page"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`invalid_job_query`: an unknown member, a repeated single member or a value outside its bounds · `invalid_job_cursor`: not a cursor this list wrote"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`store_busy`: durable job state unavailable"
+          }
+        },
+        "summary": "List jobs, newest first"
+      },
       "post": {
-        "description": "Two forms, one admission (ADR-131). `{\"workflow\": \"<name>\"}` names a workflow the served registry lists: the resident captures its world through ExecutionService, exactly as a schedule does. Optional `access` on that form is CLI `--access` for this job only. A snapshot body is the world `nika check <file> --json --sdk-snapshot` prints, decoded and readmitted through the same ExecutionService; its digests are optional caller-supplied integrity digests (a content assertion, never a signature). Snapshot jobs inherit the resident's unpinned plan. The server never interprets a caller filesystem path. Idempotency binds to the exact request bytes.",
+        "description": "Two forms, one admission (ADR-131). `{\"workflow\": \"<name>\"}` names a workflow the served registry lists: the resident captures its world through ExecutionService, exactly as a schedule does. Optional `access` on that form is CLI `--access` for this job only. A snapshot body is the world `nika check <file> --json --sdk-snapshot` prints, decoded and readmitted through the same ExecutionService; its digests are optional caller-supplied integrity digests (a content assertion, never a signature). Snapshot jobs inherit the resident's unpinned plan. The server never interprets a caller filesystem path. Idempotency binds to the exact request bytes. Waiting jobs are served fairly (health capability `occupancy`): the next free worker goes to the owner with the fewest jobs running, in turn among equals, first in first out inside one owner; jobs that state no owner share one lane. A resident may bound what one owner holds: past its waiting bound the admission answers 429 `owner_queue_full` with `Retry-After`, and past its running bound the owner's other jobs wait while free workers serve other owners.",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -2247,6 +2955,25 @@
               }
             },
             "description": "Malformed, unsupported, tampered, or semantically refused snapshot"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start.",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
           },
           "503": {
             "content": {
@@ -2550,6 +3277,75 @@
         "summary": "Stream one artifact's bytes, verified against its journaled SHA-256"
       }
     },
+    "/v1/jobs/{id}/attempts": {
+      "get": {
+        "description": "Health capability `jobRetry`. The policy in force for the job (the resident's `--retry-interrupted` and `--retry-max-attempts`, as the job's own `retry` narrows them), where it stands about being started again, and each attempt oldest first. An attempt that was started again keeps its identity, its receipt, how it ended and what the decision that closed it counted; the attempt in hand carries its spend in its own settlement on `GET /v1/jobs/{id}`. Each attempt has its own journal: `GET /v1/jobs/{id}/trace/verify?attempt=N` verifies one.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAttempts"
+                }
+              }
+            },
+            "description": "The job's attempts"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`job_not_found`: unknown or forgotten job id"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`store_busy`: durable job state unavailable"
+          }
+        },
+        "summary": "Read every attempt of a job"
+      }
+    },
     "/v1/jobs/{id}/cancel": {
       "post": {
         "description": "A queued job cancels atomically before execution claims it. An active job receives the run-scoped cancellation signal and returns 202 until its execution owner settles: the result may be success, failure or cancellation. The grace is fixed at 5 seconds from the signal: a run that has not reached a wave boundary and settled by then is dropped and the job settles `interrupted`, never an invented cancellation. A task still inside one long step when the signal arrives (an agent turn, a long wait) typically outlasts the grace. A paused or final observation returns its existing result unchanged.",
@@ -2683,6 +3479,144 @@
         "summary": "Job event SSE"
       }
     },
+    "/v1/jobs/{id}/retry": {
+      "post": {
+        "description": "Health capability `jobRetry`. The latest attempt of a job that ended `interrupted` or `failed`, and that its caller did not cancel, becomes evidence and a new attempt of the same job is queued, with its own execution and trace identity. The request is the caller's consent to run the workflow's effects again. The bound of attempts in force for the job, the one ceiling over every attempt and, for `resume`, the judgment of the attempt's journal hold as for a run that lost its owner (ADR-156). The place in the owner's lane is taken before anything is written. The same request sent again answers 200 with the job as it stands and writes nothing.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobRetryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "The same request already retried this attempt: the job as it stands. A job still `queued` is put back in its owner's lane unless it waits already"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "The new attempt is queued"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`job_not_found`: unknown or forgotten job id"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`job_not_retryable`: the job did not end `interrupted` or `failed`, a cancellation was accepted on it, its latest attempt never started, or `attempt` is not its latest · `retry_exhausted`: the job reached its bound of attempts · `resume_refused`: the attempt's journal cannot be resumed, or a schedule fired the job · `unknown_spend`: what an attempt spent cannot be read, and no `max_cost_usd` is stated · `budget_exhausted`: nothing is left under the job's ceiling"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`body_too_large`"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`invalid_job_retry`: the body is not a retry request"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start.",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`store_busy`: durable job state unavailable · `queue_full`: the execution queue is at capacity · `stopping`: the resident is stopping"
+          }
+        },
+        "summary": "Start the latest attempt of a settled job again"
+      }
+    },
     "/v1/jobs/{id}/status": {
       "get": {
         "parameters": [
@@ -2743,6 +3677,16 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "The attempt whose journal is verified (ADR-156); the latest when absent. Each attempt has its own journal, chain and seal.",
+            "in": "query",
+            "name": "attempt",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer"
+            }
           }
         ],
         "responses": {
@@ -2755,6 +3699,16 @@
               }
             },
             "description": "Typed trace verdict"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`invalid_trace_query`: a query member other than one `attempt=N`"
           },
           "401": {
             "content": {
@@ -2774,10 +3728,48 @@
                 }
               }
             },
-            "description": "Error envelope"
+            "description": "`job_not_found` · `attempt_not_found`: the job has not taken this attempt"
           }
         },
         "summary": "Verify the job's trace journal"
+      }
+    },
+    "/v1/occupancy": {
+      "get": {
+        "description": "Health capability `occupancy`. How many jobs run and wait now, the limits they are held to, the owners that hold the most, and the model calls in flight on each provider the operator capped. A point-in-time reading of this resident's memory, never a durable record: read GET /v1/jobs for the jobs themselves. Authenticated, unlike /health, because it names owners. At most 100 owners are named, busiest first; `owners_omitted` counts the rest.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Occupancy"
+                }
+              }
+            },
+            "description": "The current load"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          }
+        },
+        "summary": "Read what the resident holds against its limits"
       }
     },
     "/v1/openapi.json": {
@@ -2793,7 +3785,150 @@
         "summary": "This document"
       }
     },
+    "/v1/schedules": {
+      "get": {
+        "description": "Health capability `scheduleManage`. The schedules this door created, by id, then the beats the project's `nika.yaml` declares, by id. Each entry is the status GET /v1/schedules/{id} answers, planned now, with one next slot. A project beat is read here: GET /v1/schedules/{id} answers an API schedule, or a project beat that carries a finding. `truncated` is true when the resident holds more schedules than one list answers.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleList"
+                }
+              }
+            },
+            "description": "Every schedule, planned now"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_store_corrupt`: durable schedule state failed integrity validation"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_store_unavailable`: durable schedule state unavailable"
+          }
+        },
+        "summary": "List the schedules this resident holds"
+      }
+    },
     "/v1/schedules/{id}": {
+      "delete": {
+        "description": "Health capability `scheduleManage`. Requires If-Match: the exact current ETag, or `*` for whichever revision is current. Removes the definition and its last-slot decision in one durable replacement; a schedule declared again under the same id starts with no history. A job the schedule already fired is untouched and settles on its own. A beat the project's `nika.yaml` declares is not this door's to remove and answers 409.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 96,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleRemoved"
+                }
+              }
+            },
+            "description": "Removed"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_not_found`"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_declared_by_project`: declared in the project file"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulePreconditionFailed"
+                }
+              }
+            },
+            "description": "Precondition refused; carries the current revision",
+            "headers": {
+              "ETag": {
+                "description": "The current revision, when one exists",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_store_unavailable`: durable schedule state unavailable"
+          }
+        },
+        "summary": "Remove one schedule this door created"
+      },
       "get": {
         "responses": {
           "200": {
@@ -2973,6 +4108,160 @@
           }
         },
         "summary": "Create or revision-conditionally update one resident schedule"
+      }
+    },
+    "/v1/schedules/{id}/trigger": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Health capability `scheduleManage`. Admits ONE manual job that runs the schedule's workflow as it admits now, under the inputs, cost ceiling, owner and labels the schedule declares (the declared ceiling restricts the resident's, never widens it). The request carries no body, or an empty JSON object. The trigger consumes no slot and records no schedule decision: the cadence is unmoved and the next slot fires as planned. A paused schedule can be triggered: a pause holds the cadence, not the operator. The job's origin is `manual`; find it by the schedule's owner and labels. The `Idempotency-Key` binds to the schedule id: a retry under the same key answers the same job, even after the schedule changed, and the same key on another schedule or on POST /v1/jobs answers 409. This is an operator gesture behind the one bearer credential, never an inbound event door for a third party. A beat the project's `nika.yaml` declares is not this door's to trigger and answers 409.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Idempotent replay"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Invalid idempotency key"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error envelope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`schedule_not_found`"
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Request deadline"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`idempotency_conflict`: the key is bound to another request · `schedule_declared_by_project`: declared in the project file"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "A trigger carries no body"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`invalid_schedule_trigger`: the body is not empty · `schedule.workflow`, `schedule.workflow_outside_registry` or `schedule.inputs`: the schedule's workflow or inputs no longer admit"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start.",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Execution queue or durable store unavailable"
+          },
+          "507": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Durable job capacity exhausted"
+          }
+        },
+        "summary": "Run one schedule now, as a manual job"
       }
     },
     "/v1/workflows": {

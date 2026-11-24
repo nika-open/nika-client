@@ -1,7 +1,7 @@
 # Upgrading to 0.123
 
-`@nika-open/nika` 0.124.5 bundles engine 0.124.5
-(`nika 0.124.5 (8b640a9b7)`) and speaks its machine protocol, **2**, as 0.123
+`@nika-open/nika` 0.125.0 bundles engine 0.125.0
+(`nika 0.125.0`) and speaks its machine protocol, **2**, as 0.123
 did. Engines and servers up to 0.122 speak protocol 1. Each package version
 pairs with one protocol generation, so the move from 0.120.x is one rule:
 
@@ -9,15 +9,57 @@ pairs with one protocol generation, so the move from 0.120.x is one rule:
 
 | Your package | Your engine or server | Result |
 |---|---|---|
-| 0.124.x | 0.124.x | works: the pair this package is tested with |
-| 0.123.x or 0.124.x | 0.123.x or 0.124.x | passes the identity probe (one protocol, 2); each call still checks the capability it needs (`artifacts` needs engine 0.123.2 or later) |
-| 0.123.x or 0.124.x | 0.122 and older (protocol 1) | refused at the identity probe, before any job: `NikaCompatibilityError`, `capability: 'engineIdentity'`, naming the engine version |
+| 0.125.x | 0.125.x | works: the pair this package is tested with |
+| 0.123.x, 0.124.x or 0.125.x | 0.123.x, 0.124.x or 0.125.x | passes the identity probe (one protocol, 2); each call still checks the capability it needs (`artifacts` needs engine 0.123.2 or later) |
+| 0.123.x, 0.124.x or 0.125.x | 0.122 and older (protocol 1) | refused at the identity probe, before any job: `NikaCompatibilityError`, `capability: 'engineIdentity'`, naming the engine version |
 | 0.120.3 | 0.120.x | works; that pair stays as it was |
 | 0.120.3 | 0.123.x or later | refused at identity by the 0.120.3 package |
 
 Engines 0.121 and 0.122 have no matching package: they already sent compile
 questions of type `choice` while announcing protocol 1, which the 0.120.3
 package refuses as a protocol error.
+
+## From 0.124 to 0.125: the same protocol
+
+0.125 keeps machine protocol 2 and changes no `nika serve` object this
+package reads closed. What its served document adds is new routes and new
+members of request bodies: `owner`, `labels` and `retry` on the by-name form
+of `POST /v1/jobs`, `owner` and `labels` on a schedule. The 0.125.0 package
+is the API of 0.124.5 on the new engine: it sends none of these members and
+has no method for these routes yet, which a later package version adds:
+
+- `GET /v1/jobs`, the filtered and paged job list (capability `jobList`);
+- `GET /v1/occupancy`, what the server holds against its limits
+  (`occupancy`);
+- `POST /v1/jobs/{id}/retry` and `GET /v1/jobs/{id}/attempts`, a new attempt
+  of a settled job and the attempts of a job (`jobRetry`);
+- `GET /v1/schedules`, `DELETE /v1/schedules/{id}` and
+  `POST /v1/schedules/{id}/trigger` (`scheduleManage`).
+
+They are in the pinned `openapi.json` and the types generated from it
+([http-api.md](http-api.md)). On the server side:
+
+- **The job store moves to format 4.** A 0.125 server rewrites a 0.124 job
+  store when it takes the state root, and an older engine refuses a store
+  0.125 wrote: keep a copy of the state root while a downgrade must stay
+  possible. `/health` reports `storeFormatVersion.jobs: 4`, a field this
+  package does not read.
+- **An owner can be held to a bound.** A server started with
+  `--max-queued-per-owner` answers an admission past it with
+  `429 owner_queue_full`, and the jobs this package admits state no owner,
+  so they share one lane. `run()` then rejects with `NikaOperationError`
+  (`status` 429, `code` `owner_queue_full`); nothing was admitted, and the
+  same call with the same idempotency key is admitted once the lane has room.
+- **A job can be started again.** A server started with
+  `--retry-interrupted restart` or `resume` (the default is `off`) runs a job
+  whose run lost its resident again, and `POST /v1/jobs/{id}/retry` does it
+  on request: same job id, a new execution and trace identity. This package
+  reads one attempt per job. An observer that already read one attempt's
+  identity refuses a durable job that names another (`NikaProtocolError`),
+  so leave the default while this package observes those jobs.
+- **A settled job can be forgotten.** `--job-retention` forgets a settled
+  job and its idempotency key after the window: keep the window longer than
+  your callers retry and reattach.
 
 ## From 0.123 to 0.124: the same protocol
 
@@ -112,12 +154,12 @@ lists it):
 
 ## Steps
 
-1. **Update the package.** `npm install @nika-open/nika@0.124.5`, then
+1. **Update the package.** `npm install @nika-open/nika@0.125.0`, then
    check what you installed:
 
    ```sh
-   node -p "require('@nika-open/nika/package.json').version"       # 0.124.5
-   ./node_modules/.bin/nika --version                              # nika 0.124.5 (8b640a9b7)
+   node -p "require('@nika-open/nika/package.json').version"       # 0.125.0
+   ./node_modules/.bin/nika --version                              # nika 0.125.0
    ```
 
 2. **Point `NIKA_BIN` at a 0.123 or later engine, or unset it.** An explicit `bin` or
@@ -125,24 +167,26 @@ lists it):
    command refuses a protocol-1 engine there too
    (`NIKA_BIN=<a 0.122 binary> npx nika --version` exits 1).
 
-3. **Upgrade each server.** Install engine 0.124.5 where your `nika serve`
+3. **Upgrade each server.** Install engine 0.125.0 where your `nika serve`
    runs (`brew install nika-open/tap/nika`,
    `curl -LsSf https://nika.sh/install.sh | sh`, or the container image
-   `ghcr.io/nika-open/nika:0.124.5`), stop the old server as usual
+   `ghcr.io/nika-open/nika:0.125.0`). Keep a copy of its state root first if
+   you may need to go back to 0.124: the new server moves its job store to
+   format 4, which older engines refuse. Stop the old server as usual
    (Ctrl-C drains running and queued jobs for up to 30 seconds), and start
    the new one with the same flags. Then check its identity:
 
    ```sh
-   curl -s http://127.0.0.1:8787/health   # "engineVersion":"0.124.5", "machineProtocolVersion":2
+   curl -s http://127.0.0.1:8787/health   # "engineVersion":"0.125.0", "machineProtocolVersion":2
    ```
 
 4. **Run your tests against the new pair.** Nothing in `check`, `run`,
    `events`, `result`, `cancel`, `attachRun`, `schedule` or `traceVerify`
    changed its signature: 0.123.0, 0.124.0 and 0.124.2 only add exports,
    0.124.1 one optional field, `verdicts.network_tasks`, 0.124.3 one
-   method, `accessOffer`, with its types, and 0.124.4 and 0.124.5 nothing.
-   The changes are in the data those methods return: from 0.123, in the
-   section above; from 0.120.x, below.
+   method, `accessOffer`, with its types, and 0.124.4, 0.124.5 and 0.125.0
+   nothing. The changes are in the data those methods return: from 0.123,
+   in the sections above; from 0.120.x, below.
 
 ## What changed in the data from 0.120
 
@@ -179,8 +223,9 @@ changes are in its release notes
 [0.124.2](https://github.com/nika-open/nika/releases/tag/v0.124.2),
 [0.124.3](https://github.com/nika-open/nika/releases/tag/v0.124.3),
 [0.124.4](https://github.com/nika-open/nika/releases/tag/v0.124.4),
-[0.124.5](https://github.com/nika-open/nika/releases/tag/v0.124.5)),
-and what 0.124 does not do yet is on the
+[0.124.5](https://github.com/nika-open/nika/releases/tag/v0.124.5),
+[0.125.0](https://github.com/nika-open/nika/releases/tag/v0.125.0)),
+and what 0.125 does not do yet is on the
 [known limits](https://docs.nika.sh/changelog/known-limits) page.
 
 ## Coming from 0.115 or 0.116

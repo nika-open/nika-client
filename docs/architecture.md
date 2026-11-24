@@ -58,7 +58,9 @@ local nika process         authenticated nika serve
   one history and one bounded queue per observer, and no second event bus.
 - `openapi.json` and `src/generated/openapi.d.ts` pin the HTTP contract judged
   by CI. `scripts/check-sdk-coverage.js` fails if a live runtime path is
-  missing or if the SDK names a path outside that contract.
+  missing or if the SDK names a path outside that contract. A live operation
+  the package does not wrap yet is listed there by name, and an entry that is
+  no longer live or that the SDK now calls fails it too.
 
 ## Authority rules
 
@@ -147,7 +149,7 @@ Some operations deliberately have one authority:
    `NikaRunOwnershipError`. `nika.events(run)` keeps yielding the protocol
    vocabulary unchanged. The wrappers shipped unchanged next to the Run-owned
    lifecycle from 0.120.0, the first published version that carries it, and
-   are still here in 0.124.5; a later version that removes them says so in
+   are still here in 0.125.0; a later version that removes them says so in
    its release notes.
 9. An interrupted observation is a typed transport error carrying its cursor
    (`NikaObservationInterrupted`), never an engine failure: the run may still

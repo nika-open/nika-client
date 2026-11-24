@@ -143,12 +143,12 @@ no network.
 `nika check` is the static audit that runs before any model is called: what
 the workflow will do, which models and tools it uses, what it may touch and
 what it can cost. An excerpt of its report for the file above, on engine
-0.124.5:
+0.125.0:
 
 ```text
 nika check · hello.nika
  ✔ PLAN     1 wave · 1 task · max parallelism 1
-      wave 1 greeting (infer · mock/echo)
+      wave 1 greet (infer · mock/echo)
  ✔ MODELS   1 model resolves in this binary · this machine's paths on the ACCESS line
  ✔ ACCESS   mock/echo → mock (mock · local · observed) · mock · this model route never dials
  ✔ COST     $0.0000 – $0.0000 worst-case output ceiling · prompts, exec + mcp unpriced · prices 2026-10-12
@@ -363,6 +363,24 @@ so your app needs no local engine for it. A server with a signing key answers
 covers setup, retries, recovery, restarts, artifacts, connection rules and schedules,
 and [`examples/server-recovery.ts`](https://github.com/nika-open/nika-client/blob/main/examples/server-recovery.ts)
 recovers a job across two processes.
+
+**What a 0.125 server adds.** `nika serve` 0.125 attributes a job to the
+`owner` and `labels` its caller states, lists jobs (`GET /v1/jobs`), shares
+its workers fairly between owners, caps the model calls in flight per
+provider, forgets settled jobs after `--job-retention`, and can start an
+interrupted job again as a new attempt. This package keeps the 0.124.5 API:
+it states no owner and has no method for these routes yet, so call them over
+HTTP ([docs/http-api.md](https://github.com/nika-open/nika-client/blob/main/docs/http-api.md)
+lists them). Two server settings change what `run()` sees:
+
+- `--max-queued-per-owner`: the jobs this package admits share one owner
+  lane, and an admission past the bound rejects with `NikaOperationError`
+  (`429 owner_queue_full`). Nothing was admitted; the same call with the same
+  `idempotencyKey` is admitted once the lane has room.
+- `--retry-interrupted restart` or `resume`, or a retry request: the job
+  keeps its id but gets a new execution and trace identity, which a run this
+  package already follows refuses with `NikaProtocolError`. Leave the default
+  (`off`) while this package observes those jobs.
 
 **Watch the server lines above run, then one job, a retry and a wrong token.**
 
@@ -600,11 +618,11 @@ More causes, and every error class, are in
 npm install @nika-open/nika
 ```
 
-**Status.** 0.124 is the current release line. Work stays focused on
+**Status.** 0.125 is the current release line. Work stays focused on
 maintenance, security and the media capabilities workflows need; native
-video is planned for 0.125. The 0.123.x line is the previous line. Read the
-[known limits](https://docs.nika.sh/changelog/known-limits) of 0.124 before
-you build on it.
+video is planned for a later release. The 0.124.x line is the previous line.
+Read the [known limits](https://docs.nika.sh/changelog/known-limits) of 0.125
+before you build on it.
 
 - **Node.js 22 or newer.** That is the tested floor. On an older Node.js, npm
   warns (`EBADENGINE`) and skips the engine payload, so `new Nika()` throws
@@ -634,8 +652,8 @@ The `package.json` subpath is exported for CommonJS, ESM build tools and CI
 pin checks. It reports the installed package, not a moving registry tag.
 
 **Package and engine move together.** Each package version bundles the engine
-with the same number, the one it was tested with: 0.124.5 bundles
-`nika 0.124.5 (8b640a9b7)` and speaks its machine protocol, 2, as 0.123 did.
+with the same number, the one it was tested with: 0.125.0 bundles
+`nika 0.125.0 (1261da75a)` and speaks its machine protocol, 2, as 0.123 did.
 It refuses an engine or server on another generation (0.122 and older speak 1)
 at its identity probe (`nika --sdk-identity`, `GET /health`), before any job,
 with `NikaCompatibilityError`: upgrade the package and every `nika serve`
@@ -758,7 +776,7 @@ the tools and the rules.
 | 🦋 | [nika](https://github.com/nika-open/nika) | The engine and CLI: write, check, run and verify AI workflows |
 | 📖 | [nika-docs](https://github.com/nika-open/nika-docs) | The documentation, live at [docs.nika.sh](https://docs.nika.sh) |
 | 📜 | [nika-spec](https://github.com/nika-open/nika-spec) | The language specification and the suite that proves an engine follows it |
-| 🧩 | [nika-vscode](https://github.com/nika-open/nika-vscode) | The editor extension, frozen at 0.120 and not qualified with 0.124: use `nika lsp` and the JSON Schema |
+| 🧩 | [nika-vscode](https://github.com/nika-open/nika-vscode) | The editor extension, frozen at 0.120 and not qualified with 0.125: use `nika lsp` and the JSON Schema |
 | 🟦 | **[nika-client](https://github.com/nika-open/nika-client)** | **Run and verify workflows from TypeScript** |
 | ✅ | [nika-action](https://github.com/nika-open/nika-action) | A GitHub Action that posts a `nika check` verdict on your pull requests |
 | 🚀 | [nika-actions-starter](https://github.com/nika-open/nika-actions-starter) | A ready template: workflows, editor setup and CI from the first push |
