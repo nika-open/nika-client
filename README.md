@@ -600,11 +600,11 @@ More causes, and every error class, are in
 npm install @nika-open/nika
 ```
 
-**Status.** 0.124 is the current release line. Work stays focused on
+**Status.** 0.125 is the current release line. Work stays focused on
 maintenance, security and the media capabilities workflows need; native
-video is planned for 0.125. The 0.123.x line is the previous line. Read the
-[known limits](https://docs.nika.sh/changelog/known-limits) of 0.124 before
-you build on it.
+video is planned for a later release. The 0.124.x line is the previous line.
+Read the [known limits](https://docs.nika.sh/changelog/known-limits) of 0.125
+before you build on it.
 
 - **Node.js 22 or newer.** That is the tested floor. On an older Node.js, npm
   warns (`EBADENGINE`) and skips the engine payload, so `new Nika()` throws
@@ -634,8 +634,8 @@ The `package.json` subpath is exported for CommonJS, ESM build tools and CI
 pin checks. It reports the installed package, not a moving registry tag.
 
 **Package and engine move together.** Each package version bundles the engine
-with the same number, the one it was tested with: 0.124.5 bundles
-`nika 0.124.5 (8b640a9b7)` and speaks its machine protocol, 2, as 0.123 did.
+with the same number, the one it was tested with: 0.125.0 bundles
+`nika 0.125.0` and speaks its machine protocol, 2, as 0.123 did.
 It refuses an engine or server on another generation (0.122 and older speak 1)
 at its identity probe (`nika --sdk-identity`, `GET /health`), before any job,
 with `NikaCompatibilityError`: upgrade the package and every `nika serve`

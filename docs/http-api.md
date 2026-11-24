@@ -28,6 +28,26 @@ Any other non-2xx body is discarded and reported as a redacted
 | `GET /v1/jobs/{id}/artifacts/{name}` | `run.downloadArtifact()` / `run.readArtifact()` | one artifact's recorded bytes, with their size and SHA-256 in the headers, streamed past the request deadline |
 | `GET/PUT /v1/schedules/{id}` | `scheduleStatus()` / `schedule()` | resident schedule projection and CAS mutation |
 
+Engine 0.125.0 serves more routes, which this package version pins and does
+not wrap yet:
+[`scripts/check-sdk-coverage.js`](https://github.com/nika-open/nika-client/blob/main/scripts/check-sdk-coverage.js)
+lists each one by name, and a later package version that wraps one removes it
+from that list. The by-name form of `POST /v1/jobs` also gains `owner`,
+`labels` and `retry`, a schedule `owner` and `labels`, and
+`GET /v1/jobs/{id}/trace/verify` an `attempt` query: `run()`, `schedule()`
+and `traceVerify()` send none of them, so a verification reads the job's
+latest attempt, as before.
+
+| HTTP route | SDK surface | Contract |
+|---|---|---|
+| `GET /v1/jobs` | not wrapped yet | capability-gated (`jobList`); one page of job summaries, newest first, filtered by owner, status, workflow, origin, labels and admission time |
+| `GET /v1/jobs/{id}/attempts` | not wrapped yet | capability-gated (`jobRetry`); the retry policy of a job and each of its attempts |
+| `POST /v1/jobs/{id}/retry` | not wrapped yet | capability-gated (`jobRetry`); a new attempt of a job that ended `interrupted` or `failed` |
+| `GET /v1/occupancy` | not wrapped yet | capability-gated (`occupancy`); the jobs running and waiting against the server's limits |
+| `GET /v1/schedules` | not wrapped yet | capability-gated (`scheduleManage`); every schedule the server holds |
+| `DELETE /v1/schedules/{id}` | not wrapped yet | capability-gated (`scheduleManage`); removes a schedule this door created, under `If-Match` |
+| `POST /v1/schedules/{id}/trigger` | not wrapped yet | capability-gated (`scheduleManage`); one manual job under what the schedule declares |
+
 ## Connection rules
 
 - HTTPS is required for every host except loopback. Plain HTTP is accepted
@@ -36,8 +56,8 @@ Any other non-2xx body is discarded and reported as a redacted
 - URLs containing credentials, a query, or a fragment are rejected.
 - Tokens must contain 32–512 visible ASCII bytes and are never sent to
   `/health`.
-- `GET /health` must name machine protocol 2, the generation of engines 0.123
-  and 0.124 and of the engine this package bundles. A resident on another
+- `GET /health` must name machine protocol 2, the generation of engines
+  0.123, 0.124 and 0.125, the engine this package bundles. A resident on another
   generation (0.122 and older speak 1) is refused with `NikaCompatibilityError`
   (`capability: 'engineIdentity'`) before any other request. A local engine
   that captures a snapshot or observes a compile must report the same

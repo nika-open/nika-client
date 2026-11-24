@@ -337,11 +337,88 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List jobs, newest first
+         * @description Health capability `jobList`. One page of the jobs this resident keeps, newest admission first, as light summaries: a summary never carries inputs, outputs, a receipt or a settlement (read them on GET /v1/jobs/{id}). Every query member is optional and they combine with AND. The list is a view inside one authority domain: filtering by `owner` is never an authorization boundary, and whoever holds the token reads every job. Pages are stable: a job admitted while a caller pages is newer than every page still to come, so no summary repeats or is skipped; a job the resident stopped keeping simply no longer appears. An unknown member, a repeated single member or a value outside its bounds is refused, never ignored.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The exact owner the job's caller stated. */
+                    owner?: string;
+                    /** @description Any of these statuses. Repeat the member or separate values with commas. */
+                    status?: components["schemas"]["JobStatus"][];
+                    /** @description The exact served workflow name captured at admission. */
+                    workflow?: string;
+                    /** @description `manual`: submitted through POST /v1/jobs. `schedule`: fired by a resident schedule. */
+                    origin?: "manual" | "schedule";
+                    /** @description `key:value`, split on the first colon. Repeatable, at most 16; every pair must be a label of the job. */
+                    label?: string[];
+                    /** @description Admitted strictly after this RFC 3339 instant. Write a `+` offset as `%2B`. A job admitted before the resident dated admissions is placed by its first dated event, and left out of a dated listing when it has none. */
+                    created_after?: string;
+                    /** @description Admitted strictly before this RFC 3339 instant. */
+                    created_before?: string;
+                    limit?: number;
+                    /** @description The `next_cursor` of the previous page, sent back unchanged with the same filters. Opaque: never build or parse one. */
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description One page */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JobList"];
+                    };
+                };
+                /** @description `invalid_job_query`: an unknown member, a repeated single member or a value outside its bounds · `invalid_job_cursor`: not a cursor this list wrote */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `store_busy`: durable job state unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * Admit a workflow as a durable job — by served name, or as immutable snapshot bytes
-         * @description Two forms, one admission (ADR-131). `{"workflow": "<name>"}` names a workflow the served registry lists: the resident captures its world through ExecutionService, exactly as a schedule does. Optional `access` on that form is CLI `--access` for this job only. A snapshot body is the world `nika check <file> --json --sdk-snapshot` prints, decoded and readmitted through the same ExecutionService; its digests are optional caller-supplied integrity digests (a content assertion, never a signature). Snapshot jobs inherit the resident's unpinned plan. The server never interprets a caller filesystem path. Idempotency binds to the exact request bytes.
+         * @description Two forms, one admission (ADR-131). `{"workflow": "<name>"}` names a workflow the served registry lists: the resident captures its world through ExecutionService, exactly as a schedule does. Optional `access` on that form is CLI `--access` for this job only. A snapshot body is the world `nika check <file> --json --sdk-snapshot` prints, decoded and readmitted through the same ExecutionService; its digests are optional caller-supplied integrity digests (a content assertion, never a signature). Snapshot jobs inherit the resident's unpinned plan. The server never interprets a caller filesystem path. Idempotency binds to the exact request bytes. Waiting jobs are served fairly (health capability `occupancy`): the next free worker goes to the owner with the fewest jobs running, in turn among equals, first in first out inside one owner; jobs that state no owner share one lane. A resident may bound what one owner holds: past its waiting bound the admission answers 429 `owner_queue_full` with `Retry-After`, and past its running bound the owner's other jobs wait while free workers serve other owners.
          */
         post: {
             parameters: {
@@ -442,6 +519,17 @@ export interface paths {
                 /** @description Malformed, unsupported, tampered, or semantically refused snapshot */
                 422: {
                     headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts. */
+                429: {
+                    headers: {
+                        /** @description Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start. */
+                        "Retry-After"?: number;
                         [name: string]: unknown;
                     };
                     content: {
@@ -730,6 +818,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/jobs/{id}/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read every attempt of a job
+         * @description Health capability `jobRetry`. The policy in force for the job (the resident's `--retry-interrupted` and `--retry-max-attempts`, as the job's own `retry` narrows them), where it stands about being started again, and each attempt oldest first. An attempt that was started again keeps its identity, its receipt, how it ended and what the decision that closed it counted; the attempt in hand carries its spend in its own settlement on `GET /v1/jobs/{id}`. Each attempt has its own journal: `GET /v1/jobs/{id}/trace/verify?attempt=N` verifies one.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The job's attempts */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JobAttempts"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `job_not_found`: unknown or forgotten job id */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `store_busy`: durable job state unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/jobs/{id}/cancel": {
         parameters: {
             query?: never;
@@ -874,6 +1039,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/jobs/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start the latest attempt of a settled job again
+         * @description Health capability `jobRetry`. The latest attempt of a job that ended `interrupted` or `failed`, and that its caller did not cancel, becomes evidence and a new attempt of the same job is queued, with its own execution and trace identity. The request is the caller's consent to run the workflow's effects again. The bound of attempts in force for the job, the one ceiling over every attempt and, for `resume`, the judgment of the attempt's journal hold as for a run that lost its owner (ADR-156). The place in the owner's lane is taken before anything is written. The same request sent again answers 200 with the job as it stands and writes nothing.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["JobRetryRequest"];
+                };
+            };
+            responses: {
+                /** @description The same request already retried this attempt: the job as it stands. A job still `queued` is put back in its owner's lane unless it waits already */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Job"];
+                    };
+                };
+                /** @description The new attempt is queued */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Job"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `job_not_found`: unknown or forgotten job id */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `job_not_retryable`: the job did not end `interrupted` or `failed`, a cancellation was accepted on it, its latest attempt never started, or `attempt` is not its latest · `retry_exhausted`: the job reached its bound of attempts · `resume_refused`: the attempt's journal cannot be resumed, or a schedule fired the job · `unknown_spend`: what an attempt spent cannot be read, and no `max_cost_usd` is stated · `budget_exhausted`: nothing is left under the job's ceiling */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `body_too_large` */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `invalid_job_retry`: the body is not a retry request */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts. */
+                429: {
+                    headers: {
+                        /** @description Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start. */
+                        "Retry-After"?: number;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `store_busy`: durable job state unavailable · `queue_full`: the execution queue is at capacity · `stopping`: the resident is stopping */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/jobs/{id}/status": {
         parameters: {
             query?: never;
@@ -943,7 +1236,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description The attempt whose journal is verified (ADR-156); the latest when absent. Each attempt has its own journal, chain and seal. */
+                    attempt?: number;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -961,6 +1257,15 @@ export interface paths {
                         "application/json": components["schemas"]["TraceVerification"];
                     };
                 };
+                /** @description `invalid_trace_query`: a query member other than one `attempt=N` */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
                 /** @description Error envelope */
                 401: {
                     headers: {
@@ -970,8 +1275,65 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
-                /** @description Error envelope */
+                /** @description `job_not_found` · `attempt_not_found`: the job has not taken this attempt */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/occupancy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read what the resident holds against its limits
+         * @description Health capability `occupancy`. How many jobs run and wait now, the limits they are held to, the owners that hold the most, and the model calls in flight on each provider the operator capped. A point-in-time reading of this resident's memory, never a durable record: read GET /v1/jobs for the jobs themselves. Authenticated, unlike /health, because it names owners. At most 100 owners are named, busiest first; `owners_omitted` counts the rest.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current load */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Occupancy"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1019,6 +1381,81 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the schedules this resident holds
+         * @description Health capability `scheduleManage`. The schedules this door created, by id, then the beats the project's `nika.yaml` declares, by id. Each entry is the status GET /v1/schedules/{id} answers, planned now, with one next slot. A project beat is read here: GET /v1/schedules/{id} answers an API schedule, or a project beat that carries a finding. `truncated` is true when the resident holds more schedules than one list answers.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Every schedule, planned now */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScheduleList"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `schedule_store_corrupt`: durable schedule state failed integrity validation */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `schedule_store_unavailable`: durable schedule state unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
                 };
             };
         };
@@ -1181,6 +1618,226 @@ export interface paths {
             };
         };
         post?: never;
+        /**
+         * Remove one schedule this door created
+         * @description Health capability `scheduleManage`. Requires If-Match: the exact current ETag, or `*` for whichever revision is current. Removes the definition and its last-slot decision in one durable replacement; a schedule declared again under the same id starts with no history. A job the schedule already fired is untouched and settles on its own. A beat the project's `nika.yaml` declares is not this door's to remove and answers 409.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header: {
+                    "If-Match": string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Removed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScheduleRemoved"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `schedule_not_found` */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `schedule_declared_by_project`: declared in the project file */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Precondition refused; carries the current revision */
+                412: {
+                    headers: {
+                        /** @description The current revision, when one exists */
+                        ETag?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SchedulePreconditionFailed"];
+                    };
+                };
+                /** @description `schedule_store_unavailable`: durable schedule state unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/schedules/{id}/trigger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run one schedule now, as a manual job
+         * @description Health capability `scheduleManage`. Admits ONE manual job that runs the schedule's workflow as it admits now, under the inputs, cost ceiling, owner and labels the schedule declares (the declared ceiling restricts the resident's, never widens it). The request carries no body, or an empty JSON object. The trigger consumes no slot and records no schedule decision: the cadence is unmoved and the next slot fires as planned. A paused schedule can be triggered: a pause holds the cadence, not the operator. The job's origin is `manual`; find it by the schedule's owner and labels. The `Idempotency-Key` binds to the schedule id: a retry under the same key answers the same job, even after the schedule changed, and the same key on another schedule or on POST /v1/jobs answers 409. This is an operator gesture behind the one bearer credential, never an inbound event door for a third party. A beat the project's `nika.yaml` declares is not this door's to trigger and answers 409.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Idempotent replay */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Job"];
+                    };
+                };
+                /** @description Created */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Job"];
+                    };
+                };
+                /** @description Invalid idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Error envelope */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `schedule_not_found` */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Request deadline */
+                408: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `idempotency_conflict`: the key is bound to another request · `schedule_declared_by_project`: declared in the project file */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description A trigger carries no body */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `invalid_schedule_trigger`: the body is not empty · `schedule.workflow`, `schedule.workflow_outside_registry` or `schedule.inputs`: the schedule's workflow or inputs no longer admit */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description `owner_queue_full`: this owner already has as many jobs waiting as one owner may have. Nothing is written and the idempotency key stays unbound; other owners are still admitted. Retry the same request when one of the owner's jobs starts. */
+                429: {
+                    headers: {
+                        /** @description Seconds to wait before the retry. A hint: the resident cannot know when one of the owner's jobs will start. */
+                        "Retry-After"?: number;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Execution queue or durable store unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Durable job capacity exhausted */
+                507: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1582,7 +2239,7 @@ export interface components {
             status: "ok";
             /** @description Durable store formats this resident reads and writes; independent of the HTTP and event protocol versions. */
             storeFormatVersion: {
-                /** @example 3 */
+                /** @example 4 */
                 jobs: number;
                 /** @example 1 */
                 schedules: number;
@@ -1608,13 +2265,85 @@ export interface components {
             status: components["schemas"]["JobStatus"];
             trace_id?: string;
         };
-        /** @description The by-name form (ADR-131): a workflow the served registry lists (GET /v1/workflows · project-root-relative, `.nika`). The resident captures its world exactly as a schedule does — the one owner of the snapshot and its digest domain. Idempotency binds to these request bytes. Optional `access` is the same pin as CLI `--access` (a pin is a pin). Absent: the resident's unpinned plan. Snapshot bodies reject both access and inputs overlays, including null or empty maps. Optional inputs are literal JSON values checked against declared keys, types and required values before a job exists; strings are never CLI @env instructions or expressions. */
+        JobAttempt: {
+            attempt: number;
+            /**
+             * Format: date-time
+             * @description For an attempt queued again after losing its resident, when it was queued again.
+             */
+            ended_at?: string;
+            /** @description Absent on an attempt that waits and has not started. */
+            execution_id?: string;
+            /**
+             * @description How this attempt was started again; absent on the first.
+             * @enum {string}
+             */
+            mode?: "restart" | "resume";
+            receipt?: components["schemas"]["JobReceipt"];
+            /** @description The trace this attempt continues, when it resumed the one before it. */
+            resumed_from?: string;
+            /** @description On an attempt that was started again: what the decision counted against the job's ceiling. `unknown` is present when some of it could not be read; it never counts for zero. */
+            spend?: {
+                /** @constant */
+                unknown?: true;
+                usd: number;
+            };
+            /** Format: date-time */
+            started_at?: string;
+            status: components["schemas"]["JobStatus"];
+            trace_id?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        JobAttempts: {
+            attempts: components["schemas"]["JobAttempt"][];
+            /** Format: uuid */
+            job_id: string;
+            policy: {
+                max_attempts: number;
+                /** @enum {string} */
+                on_interrupted: "off" | "restart" | "resume";
+            } & {
+                [key: string]: unknown;
+            };
+            /**
+             * @description Present when `retry_state` is `exhausted` or `refused`.
+             * @enum {string}
+             */
+            retry_reason?: "retry_exhausted" | "effects_need_consent" | "unknown_spend" | "budget_exhausted" | "resume_refused";
+            /**
+             * @description `queued`: a new attempt waits in its owner's lane. `exhausted`: the job took its bound of attempts, so a request would be refused. `refused`: the resident decided not to start it again, and says why (`retry_reason`, and the code of the job's last event or error). `none`: nothing waits and nothing was refused, including a job whose latest attempt failed for a reason of its own while its bound leaves room. Open: a later engine may add a word.
+             * @enum {string}
+             */
+            retry_state: "none" | "queued" | "exhausted" | "refused";
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description The by-name form (ADR-131): a workflow the served registry lists (GET /v1/workflows · project-root-relative, `.nika`). The resident captures its world exactly as a schedule does — the one owner of the snapshot and its digest domain. Idempotency binds to these request bytes. Optional `access` is the same pin as CLI `--access` (a pin is a pin). Absent: the resident's unpinned plan. Snapshot bodies reject both access and inputs overlays, including null or empty maps. Optional inputs are literal JSON values checked against declared keys, types and required values before a job exists; strings are never CLI @env instructions or expressions. Optional `owner` and `labels` (health capability `jobAttribution`) are what the caller states about the job so its application can find it again (GET /v1/jobs): they are attribution inside one authority domain, never an authorization boundary, and whoever holds the token reads every job. They bind the exact request identity like every other member; a snapshot body carries none, and a cost review binds none (they are stated on the admission that consumes it). Optional `retry` (health capability `jobRetry`, ADR-156) states whether the job is started again when its run loses its owner; it binds the request identity too. */
         JobByName: {
             /** @description Access pin, same vocabulary as `--access` (class or harness id). A pin never silently substitutes a metered seat. */
             access?: string;
             /** @description Literal JSON overrides for declared workflow inputs. Unknown keys, wrong types and missing required values refuse with 422; defaults remain authored. A present null is refused. Inputs bind exact request identity and survive durable queue recovery; workflow bytes are unchanged. */
             inputs?: {
                 [key: string]: unknown;
+            };
+            /** @description At most 16 caller labels. A key is 1 to 64 bytes of letters, digits and `._/-` (no colon); a value is at most 256 bytes of text without control characters. Outside these bounds, or null: 422 invalid_job_labels. */
+            labels?: {
+                [key: string]: string;
+            };
+            /** @description Who the caller attributes this job to: opaque to the engine. Outside its bounds, or null: 422 invalid_job_owner. Require the `jobAttribution` capability first: a resident without it refuses the member as an unknown field. */
+            owner?: string;
+            /** @description What the caller states about starting this job again when its run loses its owner: the resident stopped or was killed while the job ran (ADR-156). Stating it, even empty, is the caller's consent to run the workflow's effects a second time. Absent: the resident's own policy applies, and only to a workflow the engine classes as free of external effects. Unknown members, null, or a value outside its bounds: 422 invalid_job_retry. Refused on a request that consumes a cost review. Require the `jobRetry` capability first: a resident without it refuses the member as an unknown field. */
+            retry?: {
+                /** @description The most attempts this job may take, counting the first. It lowers the resident's `--retry-max-attempts`, never raises it. */
+                max_attempts?: number;
+                /** @description A ceiling for the re-attempts alone (USD). Stating it accepts that an attempt whose spend could not be read is followed by another; without it such a job stays `interrupted` (`unknown_spend`), whether or not a ceiling bounds the job. It never raises the ceiling that covers every attempt of the job. */
+                max_cost_usd?: number;
+                /**
+                 * @description `resume` serves the tasks the interrupted attempt's journal completed and runs the rest, once the journal is judged as `nika run --resume` judges one; a journal that does not pass leaves the job `interrupted` (`resume_refused`). `restart` runs the whole workflow again as a new attempt of the same job, with its own execution and trace identity. `off` leaves the job `interrupted`. Absent: the resident's `--retry-interrupted`.
+                 * @enum {string}
+                 */
+                on_interrupted?: "off" | "restart" | "resume";
             };
             workflow: string;
         };
@@ -1636,6 +2365,14 @@ export interface components {
             sequence: number;
             settlement?: components["schemas"]["RunSettlement"];
             status: components["schemas"]["JobStatus"] | null;
+        };
+        /** @description One page of the job list, newest admission first. Open by contract: a later engine may add a member, and a client ignores the members it does not know. */
+        JobList: {
+            jobs: components["schemas"]["JobSummary"][];
+            /** @description Present while an older match exists: send it back as `cursor` with the same filters. Absent on the last page. */
+            next_cursor?: string;
+        } & {
+            [key: string]: unknown;
         };
         JobOrigin: {
             /** @constant */
@@ -1674,6 +2411,17 @@ export interface components {
             snapshot_digest: string;
             trace_id: string;
         };
+        JobRetryRequest: {
+            /** @description The attempt this request retries, the first being 1: the job's latest. Naming it makes the request safe to send again. */
+            attempt: number;
+            /** @description A ceiling for the re-attempts alone (USD), in force for the attempts after this one until another request states one. Stating it accepts that an attempt whose spend could not be read is followed by another. It never raises the ceiling that covers every attempt of the job. */
+            max_cost_usd?: number;
+            /**
+             * @description `restart` runs the captured workflow from its first task. `resume` serves the tasks the attempt's journal completed and runs the rest, once the journal is judged as `nika run --resume` judges one; the resident never falls back to `restart` on its own.
+             * @enum {string}
+             */
+            mode: "restart" | "resume";
+        };
         /**
          * @description queued and running: the resident owns the execution. interrupted: execution ownership was lost and effect settlement is unknown — an EVIDENCE state (the journal is INCOMPLETE), never a run state (ADR-129). paused, succeeded, failed and cancelled: the run's own settlement, the words its terminal frame carries (ADR-128).
          * @enum {string}
@@ -1683,12 +2431,93 @@ export interface components {
         JobStatusOnly: {
             status: components["schemas"]["JobStatus"];
         };
+        /** @description What the list shows of one job. Open by contract, like `JobList`. It never carries inputs, outputs, a receipt or a settlement. */
+        JobSummary: {
+            /** @description How many attempts the job took or holds, the first included (ADR-156); `GET /v1/jobs/{id}/attempts` lists them. */
+            attempts?: number;
+            /**
+             * Format: date-time
+             * @description When the resident admitted the job (UTC). For a job admitted before the resident dated admissions: the date of its first dated event, or absent.
+             */
+            created_at?: string;
+            /** @description On a failed job only: the redacted diagnosis GET /v1/jobs/{id} carries. */
+            error?: {
+                code: string;
+                message: string;
+            };
+            execution_id?: string;
+            /** Format: uuid */
+            id: string;
+            /** @description What the caller stated; empty on an unlabelled job. */
+            labels: {
+                [key: string]: string;
+            };
+            origin: components["schemas"]["JobOrigin"];
+            /** @description What the caller stated; absent on an unattributed job. */
+            owner?: string;
+            /**
+             * @description `queued`: a new attempt waits in its owner's lane. `exhausted`: the job took its bound of attempts, so a request would be refused. `refused`: the resident decided not to start it again, and says why (`retry_reason`, and the code of the job's last event or error). `none`: nothing waits and nothing was refused, including a job whose latest attempt failed for a reason of its own while its bound leaves room. Open: a later engine may add a word.
+             * @enum {string}
+             */
+            retry_state?: "none" | "queued" | "exhausted" | "refused";
+            status: components["schemas"]["JobStatus"];
+            trace_id?: string;
+            /** @description The served workflow name captured at admission. */
+            workflow: string;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Reported journal delivery loss, independent of execution status. The reason classifies the mirror's first error without exposing OS text or paths. Absence is not a claim that a journal exists. */
         JournalEvidence: {
             /** @enum {string} */
             reason: "write_failed" | "record_refused";
             /** @constant */
             status: "mirror_lost";
+        };
+        /** @description What the resident holds now against its limits. Open by contract: a later engine may add a member, and a client ignores the members it does not know. */
+        Occupancy: {
+            jobs: {
+                /** @description Jobs the resident runs at once. */
+                max_concurrent: number;
+                /** @description Jobs one owner runs at once; null when unbounded. Its other jobs wait. */
+                max_concurrent_per_owner: number | null;
+                /** @description Jobs one owner may have waiting; null when unbounded. Past it an admission answers 429 `owner_queue_full`. */
+                max_queued_per_owner: number | null;
+                /** @description Jobs that may wait, all owners together. Past it an admission answers 503 `queue_full`. */
+                queue_capacity: number;
+                /** @description Jobs admitted and waiting for a worker. */
+                queued: number;
+                /** @description Jobs a worker runs now. */
+                running: number;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The owners that hold a job now, busiest first. */
+            owners: ({
+                /** @description The stated owner; null for the jobs that state none, which share one lane. */
+                owner: string | null;
+                queued: number;
+                running: number;
+            } & {
+                [key: string]: unknown;
+            })[];
+            /** @description Owners that hold a job and are not named above. */
+            owners_omitted: number;
+            /** @description The providers the operator capped (`--provider-concurrency`), by id. A provider with no cap is not listed: the resident does not count its calls. Empty when none is capped. */
+            providers: ({
+                /** @description Calls that hold a slot now: sent and not yet answered. */
+                in_flight: number;
+                /** @description Model calls this provider may have in flight at once, all jobs together. */
+                max_concurrent: number;
+                /** @description The canonical provider id. */
+                provider: string;
+                /** @description Calls that wait for a slot. They are sent in turn as slots free. */
+                waiting: number;
+            } & {
+                [key: string]: unknown;
+            })[];
+        } & {
+            [key: string]: unknown;
         };
         /** @description The run's settlement (ADR-128), built once by the runtime and projected whole: the state word every door speaks, why, the elapsed time on the kernel clock, the task tally, the spend with its qualifier, the failure named. Unknown cost is never zero: `total_cost_usd` is absent when nothing was metered. Present on the terminal event and durable job response of a job whose runtime settled; absent when the resident lost the execution (interrupted) or refused it before any task. Reattachment and idempotent admission replay project the same hash-bound terminal event, never a new settlement. */
         RunSettlement: {
@@ -1748,6 +2577,14 @@ export interface components {
                 detail: string;
             }[];
         };
+        /** @description Every schedule the resident holds: API schedules by id, then project beats by id. Open by contract: a later engine may add a member. */
+        ScheduleList: {
+            schedules: components["schemas"]["ScheduleStatus"][];
+            /** @description True when the resident holds more schedules than one list answers. */
+            truncated: boolean;
+        } & {
+            [key: string]: unknown;
+        };
         SchedulePreconditionFailed: {
             error: {
                 /** @constant */
@@ -1766,12 +2603,18 @@ export interface components {
             };
             /** @enum {string} */
             jitter?: "hash";
+            /** @description The labels every job this schedule starts carries, under the law of `labels` on POST /v1/jobs. Part of the schedule revision only when stated. */
+            labels?: {
+                [key: string]: string;
+            };
             maxCostUsd: number;
             maxLatenessSeconds?: number;
             /** @enum {string} */
             missed: "catch-up" | "catch-up-once" | "skip";
             /** @enum {string} */
             overlap?: "skip" | "queue" | "replace";
+            /** @description Health capability `scheduleManage`. Who the jobs this schedule starts are attributed to: every job it fires or a trigger admits carries it (GET /v1/jobs?owner=). The same law as `owner` on POST /v1/jobs: attribution inside one authority domain, never an authorization boundary. Part of the schedule revision only when stated, so a schedule that states none keeps its revision. */
+            owner?: string;
             pauseReason?: string;
             /** Format: date */
             pauseUntil?: string;
@@ -1787,6 +2630,15 @@ export interface components {
                 kind: "cadence";
             };
             workflow: string;
+        };
+        ScheduleRemoved: {
+            id: string;
+            /** @constant */
+            removed: true;
+            /** @description The revision that was removed. */
+            revision: string;
+        } & {
+            [key: string]: unknown;
         };
         /** @description Normalized definition, origin, distinct schedule revision, active/pause state, due verdict, bounded next slots with shift evidence, earliest wake hint, and last durable decision. */
         ScheduleStatus: {

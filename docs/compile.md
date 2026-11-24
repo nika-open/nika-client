@@ -458,18 +458,24 @@ standing cost policy it adds is a flag the operator gives at startup
 (`nika serve --cost-policy`), never a field of a request. Only a server
 started with that flag lists one more capability, `costStandingPolicyV1`,
 and describes the `cost_admission` of a job's settlement in the document it
-serves. 0.124.5, the engine this package version bundles, is the first
-release published from `nika-open/nika` and keeps both once more: its
-default served document differs from 0.124.4's only by its version, and its
-health answer lists the same capabilities. This package refuses an engine
+serves. 0.124.5 is the first release published from `nika-open/nika` and
+keeps both once more: its default served document differs from 0.124.4's
+only by its version, and its health answer lists the same capabilities.
+0.125.0, the engine this package version bundles, keeps the machine protocol
+and the compile door again: its served document adds job, schedule and
+occupancy routes and members of the job and schedule requests, never a
+compile field, and its health answer lists five more capabilities
+(`jobAttribution`, `jobList`, `occupancy`, `jobRetry` and, beside
+`schedule`, `scheduleManage`). This package refuses an engine
 on protocol 1 at its identity. An engine without a flag answers with a usage
 error; a server without a field answers `422 malformed_compile_request`.
 Point `NIKA_BIN` (or `bin`) at the engine you mean to use.
 
 The pinned `openapi.json` and `src/generated/openapi.d.ts` are the default
-document of the released engine 0.124.5 resident, regenerated from the
-released `nika serve`. The generation-2 types are written by hand from the
-engine source at tag `v0.123.0`: `crates/nika-serve/src/server/compile/v2.rs`,
+document of the engine 0.125.0 resident and the types generated from it;
+the release proves both against the released `nika serve`. The
+generation-2 types are written by hand from the engine source at tag
+`v0.123.0`: `crates/nika-serve/src/server/compile/v2.rs`,
 `author.rs` and `openapi-native.json` (the rounds, the judged answer round
 included), `crates/nika-serve/src/server/model.rs` (its capabilities),
 `crates/nika-compile/src/wire.rs` and `crates/nika-cli-host/src/compile.rs`

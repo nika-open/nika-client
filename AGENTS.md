@@ -11,10 +11,10 @@ the bundled engine (or `bin`/`NIKA_BIN`) as a child process; with
 (`--workflows` + `--token-file`). The engine is `nika-open/nika` (AGPL);
 the language spec is `nika-open/nika-spec` (Apache-2.0). Each package
 version bundles the engine with the same number and speaks its machine
-protocol (2 for 0.123 and 0.124). 0.124 is the current release line. Work
-stays focused on maintenance, security and the media capabilities workflows
-need; native video is planned for 0.125. The 0.123.x line is the previous
-line.
+protocol (2 for 0.123, 0.124 and 0.125). 0.125 is the current release line.
+Work stays focused on maintenance, security and the media capabilities
+workflows need; native video is planned for a later release. The 0.124.x
+line is the previous line.
 
 User documentation: `README.md` (the entry) and `docs/*.md` (shipped in the
 npm package); runnable programs in `examples/`; recordings and one labelled

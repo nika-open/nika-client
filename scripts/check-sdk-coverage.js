@@ -6,6 +6,11 @@
  * (W09.B). SDK helpers must call every live runtime path and must not call
  * absent ones. The OpenAPI document itself is a generation surface.
  *
+ * A live operation the package does not wrap yet is listed by name in
+ * NOT_WRAPPED, with the engine release that added it. Each entry must be
+ * an operation of the pinned contract, and a path listed there must not be
+ * called by the SDK: wrapping one means removing its entry here.
+ *
  * Exit 0 = covered. Exit 1 = drift.
  */
 
@@ -24,8 +29,20 @@ const ABSENT = [
   '/v1/cancel',
   '/v1/events',
   '/v1/reload',
-  '/v1/schedules/:param/trigger',
   '/v1/schedules/:param/backfill',
+];
+
+// Live operations of the pinned contract that this package version does not
+// wrap. Engine 0.125.0 added them; the 0.125.0 package is a lockstep release
+// on that engine, and the methods that call them are a later change.
+const NOT_WRAPPED = [
+  ['get', '/v1/jobs', 'engine 0.125.0, capability jobList'],
+  ['get', '/v1/jobs/{id}/attempts', 'engine 0.125.0, capability jobRetry'],
+  ['post', '/v1/jobs/{id}/retry', 'engine 0.125.0, capability jobRetry'],
+  ['get', '/v1/occupancy', 'engine 0.125.0, capability occupancy'],
+  ['get', '/v1/schedules', 'engine 0.125.0, capability scheduleManage'],
+  ['delete', '/v1/schedules/{id}', 'engine 0.125.0, capability scheduleManage'],
+  ['post', '/v1/schedules/{id}/trigger', 'engine 0.125.0, capability scheduleManage'],
 ];
 
 function livePaths() {
@@ -87,11 +104,44 @@ if (eventSchema?.additionalProperties !== false) {
   failed = true;
 }
 
-console.log('Live OpenAPI paths:');
+const HTTP_METHODS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']);
+const operationsOf = (item) => Object.keys(item || {}).filter((key) => HTTP_METHODS.has(key));
+const deferred = new Set(NOT_WRAPPED.map(([method, path]) => `${method} ${path}`));
+
+console.log('\nLive operations this package does not wrap yet:');
+for (const [method, path, origin] of NOT_WRAPPED) {
+  if (!contract.paths?.[path]?.[method]) {
+    console.log(`  STALE    ${method.toUpperCase()} ${path}: not an operation of the pinned contract`);
+    failed = true;
+  } else {
+    console.log(`  deferred ${method.toUpperCase()} ${path} (${origin})`);
+  }
+}
+// A path whose every live operation is deferred is one the SDK must not call.
+const whollyDeferred = new Set(
+  Object.entries(contract.paths || {})
+    .filter(([path, item]) => {
+      const operations = operationsOf(item);
+      return operations.length > 0
+        && operations.every((method) => deferred.has(`${method} ${path}`));
+    })
+    .map(([path]) => normalize(path)),
+);
+
+console.log('\nLive OpenAPI paths:');
 for (const path of live) {
   const hit = sdkNorm.includes(path)
     || (path === '/v1/workflows/:param'
       && sdkNorm.some((candidate) => candidate.startsWith('/v1/workflows/:param')));
+  if (whollyDeferred.has(path)) {
+    if (hit) {
+      console.log(`  WRAPPED  ${path}: the SDK calls it; remove its NOT_WRAPPED entries`);
+      failed = true;
+    } else {
+      console.log(`  deferred ${path} (not wrapped by this package version)`);
+    }
+    continue;
+  }
   if (!hit) {
     // openapi.json is fetched by generate-types, not the runtime client
     if (path === '/v1/openapi.json') {
@@ -118,7 +168,10 @@ for (const path of sdkNorm) {
 console.log('\nSDK must not claim absent routes:');
 for (const path of ABSENT) {
   const claimed = sdkNorm.some((s) => s === path || s.startsWith(`${path}/`));
-  if (claimed) {
+  if (live.includes(path)) {
+    console.log(`  LIVE     ${path}: the pinned contract serves it; remove it from ABSENT`);
+    failed = true;
+  } else if (claimed) {
     console.log(`  CLAIMED  ${path}`);
     failed = true;
   } else {
