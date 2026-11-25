@@ -24,6 +24,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   capabilities 0.125.0 listed. The engine's identity probe still answers
   machine protocol 2, with the format versions of 0.125.0. The seven routes
   0.125.0 added stay pinned and not wrapped (`check:coverage` lists them).
+- The five committed gauntlet ledgers were recorded again against the
+  verified public binary: the 100-workflow corpus, the hostile suite (14/14,
+  72 real engine runs), the five mini-SaaS projects, the six depth projects
+  and the two-process recovery. Every behavioral verdict is the one 0.125.0
+  recorded, and the 100 corpus output hashes and the six consumer app
+  digests are unchanged: only the engine and package identities, the pack
+  digest, one fresh trace and job identifier and timings moved. A full
+  replay into a scratch directory, one-door and compile parity included,
+  then matched every committed ledger (`check:release-replay`).
+- `test/engine-live.test.ts` (run with `NIKA_BIN`) passes unchanged on the
+  released 0.125.1.
 - Engine 0.125.1 is a corrective release: its exec floor refuses a recursive
   delete that leaves the working directory (`NIKA-SEC-001` at check, and
   before spawn at run), so some workflows 0.125.0 ran are now refused. Its
