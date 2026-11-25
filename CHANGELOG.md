@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.125.1] - 2026-11-25
+
+### Changed
+
+- **Release train 0.125.1, in lockstep with engine `v0.125.1`.** The machine
+  protocol stays 2. `package.json` is 0.125.1 and `sync:native-versions` moved
+  the four native payload manifests, the `optionalDependencies` and the
+  lockfile with it. The package's API is the one of 0.125.0: no method,
+  option, export or type changed.
+- The pinned `openapi.json` and `src/generated/openapi.d.ts` are the served
+  document of the released engine 0.125.1. It differs from 0.125.0's in
+  `info.version` only, and the types generated from it are unchanged: no
+  route, schema or closed set moved, and a plain `nika serve` lists the
+  capabilities 0.125.0 listed. The engine's identity probe still answers
+  machine protocol 2, with the format versions of 0.125.0. The seven routes
+  0.125.0 added stay pinned and not wrapped (`check:coverage` lists them).
+- Engine 0.125.1 is a corrective release: its exec floor refuses a recursive
+  delete that leaves the working directory (`NIKA-SEC-001` at check, and
+  before spawn at run), so some workflows 0.125.0 ran are now refused. Its
+  [release notes](https://github.com/nika-open/nika/releases/tag/v0.125.1)
+  list the rest.
+
+### Documentation
+
+- `docs/upgrading-to-0.123.md` says what 0.125.1 refuses that 0.125.0 ran,
+  and how to keep such a delete inside the working directory; its steps
+  install 0.125.1, name the image `ghcr.io/nika-open/nika:0.125.1` and link
+  the engine's 0.125.1 release notes. `docs/compile.md` adds 0.125.1 to the
+  engine history, and `docs/architecture.md`, `docs/runs.md` and
+  `docs/migrating-to-0.116.md` name 0.125.1.
+
 ## [0.125.0] - 2026-11-24
 
 ### Changed
@@ -1756,7 +1787,8 @@ Initial public release. Full rewrite from v0.1.0.
 - Error hierarchy completely redesigned
 - License changed from MIT to AGPL-3.0-or-later
 
-[Unreleased]: https://github.com/nika-open/nika-client/compare/v0.125.0...HEAD
+[Unreleased]: https://github.com/nika-open/nika-client/compare/v0.125.1...HEAD
+[0.125.1]: https://github.com/nika-open/nika-client/compare/v0.125.0...v0.125.1
 [0.125.0]: https://github.com/nika-open/nika-client/compare/v0.124.5...v0.125.0
 [0.124.5]: https://github.com/nika-open/nika-client/compare/v0.124.4...v0.124.5
 [0.124.4]: https://github.com/supernovae-st/nika-client/compare/v0.124.3...v0.124.4
