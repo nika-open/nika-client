@@ -48,9 +48,27 @@ The historical paid-provider and three-pass trace ledgers remain useful prior
 evidence, but are explicitly labelled as historical 0.115 observations and are
 not release gates for the current candidate.
 
+## Public 0.125.1 replay
+
+The current replay uses public release engine `nika 0.125.1 (db136e245)`
+(the `nika-macos-arm64-0.125.1.tar.gz` archive of the v0.125.1 GitHub release,
+checked against its `SHA256SUMS`, the tag commit and its build attestation,
+which the `nika-open/nika` release workflow signed at that tag) with
+`nika-open-nika-0.125.1.tgz`, on 2026-11-25, in a cleared environment with a
+scratch `HOME`, a file run-signing key and `NIKA_KEYCHAIN=off`. All six
+projects passed (6/6), the hostile suite 14/14 with 72 real engine runs, and
+the local corpus, mini-SaaS and two-process recovery ledgers are green. The
+engine still speaks machine protocol 2. A full replay into a scratch directory
+(the corpus, the hostile suite, the packed projects, recovery, one-door and
+compile parity) then matched every committed ledger (`check:release-replay`),
+with the same pack digest. Against the 0.125.0 ledgers, only the engine and
+package identities, the pack digest, one fresh trace and job identifier and
+timings moved: the 100 corpus output hashes, the six consumer app digests and
+every behavioral verdict are the same.
+
 ## Public 0.125.0 replay
 
-The current replay uses public release engine `nika 0.125.0 (1261da75a)`
+The previous public replay used engine `nika 0.125.0 (1261da75a)`
 (the `nika-macos-arm64-0.125.0.tar.gz` archive of the v0.125.0 GitHub release,
 checked against its `SHA256SUMS`, the tag commit and its build attestation,
 which the `nika-open/nika` release workflow signed at that tag) with
@@ -64,7 +82,8 @@ compile parity) then matched every committed ledger (`check:release-replay`),
 with the same pack digest. Against the 0.124.5 ledgers, only the engine and
 package identities, the pack digest, one fresh trace and job identifier and
 timings moved: the 100 corpus output hashes, the six consumer app digests and
-every behavioral verdict are the same.
+every behavioral verdict are the same. That ledger is historical; it is not the
+current release gate.
 
 ## Public 0.124.5 replay
 
