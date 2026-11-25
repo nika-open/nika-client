@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Release train 0.125.1, in lockstep with engine `v0.125.1`.** The machine
   protocol stays 2. `package.json` is 0.125.1 and `sync:native-versions` moved
   the four native payload manifests, the `optionalDependencies` and the
-  lockfile with it. The package's API is the one of 0.125.0: no method,
-  option, export or type changed.
+  lockfile with it. `ENGINE_QUAL_PIN` and `ENGINE_CANDIDATE` name the commit
+  engine tag `v0.125.1` names (`nika 0.125.1 (db136e245)`). The package's API
+  is the one of 0.125.0: no method, option, export or type changed.
 - The pinned `openapi.json` and `src/generated/openapi.d.ts` are the served
   document of the released engine 0.125.1. It differs from 0.125.0's in
   `info.version` only, and the types generated from it are unchanged: no
@@ -31,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- The README says the package bundles `nika 0.125.1 (db136e245)`; its
+  `nika check` excerpt, rerun on 0.125.1, is the report 0.125.0 printed.
 - `docs/upgrading-to-0.123.md` says what 0.125.1 refuses that 0.125.0 ran,
   and how to keep such a delete inside the working directory; its steps
   install 0.125.1, name the image `ghcr.io/nika-open/nika:0.125.1` and link

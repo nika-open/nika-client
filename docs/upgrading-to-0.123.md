@@ -1,9 +1,10 @@
 # Upgrading to 0.123
 
 `@nika-open/nika` 0.125.1 bundles engine 0.125.1
-(`nika 0.125.1`) and speaks its machine protocol, **2**, as 0.123
-did. Engines and servers up to 0.122 speak protocol 1. Each package version
-pairs with one protocol generation, so the move from 0.120.x is one rule:
+(`nika 0.125.1 (db136e245)`) and speaks its machine protocol, **2**, as
+0.123 did. Engines and servers up to 0.122 speak protocol 1. Each package
+version pairs with one protocol generation, so the move from 0.120.x is one
+rule:
 
 > **Upgrade the package and every `nika serve` it talks to together.**
 
@@ -170,7 +171,7 @@ lists it):
 
    ```sh
    node -p "require('@nika-open/nika/package.json').version"       # 0.125.1
-   ./node_modules/.bin/nika --version                              # nika 0.125.1
+   ./node_modules/.bin/nika --version                              # nika 0.125.1 (db136e245)
    ```
 
 2. **Point `NIKA_BIN` at a 0.123 or later engine, or unset it.** An explicit `bin` or
