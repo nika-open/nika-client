@@ -1,4 +1,4 @@
 # Candidate nika-open/nika commit for premerge qualification.
 # Not a release pin and not ENGINE_PIN. Exact 40-hex SHA only.
-# Release train 0.125.1: the commit tag v0.125.1 names, as ENGINE_QUAL_PIN.
-db136e2455272fda5acef16e4bcb2615e16d44a9
+# Release train 0.125.2: the commit tag v0.125.2 names, as ENGINE_QUAL_PIN.
+ae2d5f0b7f0e289f78780015c38f100dac5a1250

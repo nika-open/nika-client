@@ -143,15 +143,15 @@ no network.
 `nika check` is the static audit that runs before any model is called: what
 the workflow will do, which models and tools it uses, what it may touch and
 what it can cost. An excerpt of its report for the file above, on engine
-0.125.1:
+0.125.2:
 
 ```text
 nika check · hello.nika
  ✔ PLAN     1 wave · 1 task · max parallelism 1
-      wave 1 greet (infer · mock/echo)
+      wave 1 greeting (infer · mock/echo)
  ✔ MODELS   1 model resolves in this binary · this machine's paths on the ACCESS line
  ✔ ACCESS   mock/echo → mock (mock · local · observed) · mock · this model route never dials
- ✔ COST     $0.0000 – $0.0000 worst-case output ceiling · prompts, exec + mcp unpriced · prices 2026-10-12
+ ✔ COST     $0.0000 – $0.0000 worst-case output ceiling · prompts, exec + mcp unpriced · prices 2026-11-24
  …
  ✔ PERMITS  literal + const: args fit the boundary · computed programs, paths + symlinks are the RUN's verdict
  ✔ TRIFECTA no lethal trifecta over the declared permits: without a human gate
@@ -652,8 +652,8 @@ The `package.json` subpath is exported for CommonJS, ESM build tools and CI
 pin checks. It reports the installed package, not a moving registry tag.
 
 **Package and engine move together.** Each package version bundles the engine
-with the same number, the one it was tested with: 0.125.1 bundles
-`nika 0.125.1 (db136e245)` and speaks its machine protocol, 2, as 0.123 did.
+with the same number, the one it was tested with: 0.125.2 bundles
+`nika 0.125.2 (ae2d5f0b7)` and speaks its machine protocol, 2, as 0.123 did.
 It refuses an engine or server on another generation (0.122 and older speak 1)
 at its identity probe (`nika --sdk-identity`, `GET /health`), before any job,
 with `NikaCompatibilityError`: upgrade the package and every `nika serve`

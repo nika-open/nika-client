@@ -156,7 +156,7 @@ describe('packed public documentation', () => {
     expect(runs).toContain("| Carried on the turn | `service_tier.turn` | `{ value: null, evidence: 'unknown' }` on an ACP session |");
     expect(upgrading).toContain('**A file can ask its route for a service tier** (0.124.2)');
     // The package names the engine it bundles, by the commit its engine tag names.
-    expect(readme).toMatch(/0\.125\.1 bundles\n`nika 0\.125\.1 \([0-9a-f]{9}\)`/);
+    expect(readme).toMatch(/0\.125\.2 bundles\n`nika 0\.125\.2 \([0-9a-f]{9}\)`/);
   });
 
   it('teaches the access offer engine 0.124.3 adds to a server', () => {

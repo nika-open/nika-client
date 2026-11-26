@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.125.2] - 2026-11-26
+
+### Changed
+
+- **Release train 0.125.2, in lockstep with engine `v0.125.2`.** The machine
+  protocol stays 2. `package.json` is 0.125.2 and `sync:native-versions` moved
+  the four native payload manifests, the `optionalDependencies` and the
+  lockfile with it. `ENGINE_QUAL_PIN` and `ENGINE_CANDIDATE` name the commit
+  engine tag `v0.125.2` names (`nika 0.125.2 (ae2d5f0b7)`). The package's API
+  is the one of 0.125.1: no method, option, export or type changed.
+- The pinned `openapi.json` and `src/generated/openapi.d.ts` are the served
+  document of the released engine 0.125.2. It differs from 0.125.1's in
+  `info.version` only, a live `nika serve` 0.125.2 serves that same document,
+  and the types generated from it are unchanged. Its `/health` and
+  `--sdk-identity` answers differ from 0.125.1's only by the engine version,
+  the build sha and the embedded spec commit (`810bb19`): machine protocol 2,
+  the same format versions and the same capabilities. The seven routes
+  0.125.0 added stay pinned and not wrapped (`check:coverage` lists them).
+- The five committed gauntlet ledgers were recorded again against the
+  verified public binary: the 100-workflow corpus, the hostile suite (14/14,
+  72 real engine runs), the five mini-SaaS projects, the six depth projects
+  and the two-process recovery. Every behavioral verdict is the one 0.125.1
+  recorded, and the 100 corpus output hashes and the six consumer app
+  digests are unchanged: only the engine and package identities, the pack
+  digest, one fresh trace and job identifier and timings moved. A full
+  replay into a scratch directory, one-door and compile parity included,
+  then matched every committed ledger (`check:release-replay`).
+- Engine 0.125.2 is a corrective release: `nika check` refuses a secret that
+  reaches an `exec:` task's `cwd:`, a task's `model:`, an agent's
+  `images.save:` path or the `args.model` of a media builtin
+  (`NIKA-SEC-006`, whatever its `egress:`), so some files 0.125.1 accepted
+  are now refused. Its
+  [release notes](https://github.com/nika-open/nika/releases/tag/v0.125.2)
+  list the rest, among them the kit's hook changes.
+
+### Documentation
+
+- The README says the package bundles `nika 0.125.2 (ae2d5f0b7)`. Its
+  `nika check` excerpt, rerun on 0.125.2, names the file's `greeting` task,
+  where it said `greet`, and the price table of 2026-11-24 that the engine's
+  catalog now carries.
+- `docs/upgrading-to-0.123.md` says what 0.125.2 refuses that 0.125.1
+  accepted, and how to pass such a value instead; its steps install 0.125.2,
+  name the image `ghcr.io/nika-open/nika:0.125.2` and link the engine's
+  0.125.2 release notes. `docs/compile.md` adds 0.125.2 to the engine
+  history, and `docs/architecture.md`, `docs/runs.md` and
+  `docs/migrating-to-0.116.md` name 0.125.2.
+
 ## [0.125.1] - 2026-11-25
 
 ### Changed

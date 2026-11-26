@@ -1,6 +1,6 @@
 {
-  "engine": "nika 0.125.1 (db136e245)",
-  "package": "nika-open-nika-0.125.1.tgz",
+  "engine": "nika 0.125.2 (ae2d5f0b7)",
+  "package": "nika-open-nika-0.125.2.tgz",
   "install_mode": "npm pack + npm install --omit=optional + explicit NIKA_BIN",
   "projects": [
     {

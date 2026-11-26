@@ -33,9 +33,9 @@ const ABSENT = [
 ];
 
 // Live operations of the pinned contract that this package version does not
-// wrap. Engine 0.125.0 added them; the 0.125.0 and 0.125.1 packages are
-// lockstep releases on that line, and the methods that call them are a later
-// change.
+// wrap. Engine 0.125.0 added them; the 0.125.0, 0.125.1 and 0.125.2 packages
+// are lockstep releases on that line, and the methods that call them are a
+// later change.
 const NOT_WRAPPED = [
   ['get', '/v1/jobs', 'engine 0.125.0, capability jobList'],
   ['get', '/v1/jobs/{id}/attempts', 'engine 0.125.0, capability jobRetry'],
