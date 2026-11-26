@@ -568,26 +568,26 @@
       "captured": "the code lines (this README's quick start, which the capture ran, and its lines 3 and 6 as the capture's remote driver ran them on nika serve), and every event kind, verdict, hash, refusal code and version on screen",
       "drawn": "the cards, the package column, the lanes, the packets that travel them and the pacing: a run of hello.nika takes milliseconds, the clip 25 seconds",
       "pipeline": {
-        "repository": "https://github.com/supernovae-st/nika",
+        "repository": "https://github.com/nika-open/nika",
         "path": "scripts/media/motion/intent-to-proof",
-        "tag": "v0.124.0",
-        "commit": "866ed914b1d582116fdb2b5934f7755b7222a8fc",
+        "tag": null,
+        "commit": "7213e6e311ace56b1586eca08928dfe7e65238dd",
         "clip": {
           "file": "scripts/media/motion/intent-to-proof/clips/sdk-doors.mjs",
-          "sha256": "54d28bcc8ca0081fdf7561f8d2b62b4e5c17d1798656c03d0da73fc2c91e413f"
+          "sha256": "bd69c0927a4cb2c276fd99d9d216995dc93b71363ff8edbdf6c32abb44caf7d3"
         },
         "capture": {
           "file": "scripts/media/capture/sdk-doors.mjs",
-          "sha256": "82d894812d7e888918dc6d7d3fec68ad3abeb71387a9fdbb9ffed96abb02e26c"
+          "sha256": "0d2d45aa473520e183f885b27bc05aa9343535b7a50ecefe3f216d620ad70962"
         },
-        "note": "run from a copy of the engine repository at the v0.124.0 tag, whose clip and capture script are the files supernovae-st/nika#1824 added (the same sha256 as at c68e60a54); the 0.124.0 capture and these exports were made for this repository and are not committed in the engine repository",
+        "note": "run from the engine repository at 7213e6e31, on top of main 1f1191b64: its clip, capture script and drivers name @nika-open/nika (at the v0.125.2 tag they still install @supernovae-st/nika, which gets no 0.125 release), and that commit also holds this capture and these exports",
         "checks": "the clip refuses to render when a captured fact changes; strict readability audit passed (29 must-read lines, none below the reading floor)"
       },
       "capture": {
-        "date": "2026-10-27",
+        "date": "2026-11-26",
         "package": {
-          "name": "@supernovae-st/nika",
-          "version": "0.124.0",
+          "name": "@nika-open/nika",
+          "version": "0.125.2",
           "registry": "https://registry.npmjs.org/",
           "added": [
             "nika",
@@ -595,20 +595,20 @@
           ]
         },
         "engine": {
-          "versionLine": "nika 0.124.0 (866ed914b)",
+          "versionLine": "nika 0.125.2 (ae2d5f0b7)",
           "machineProtocolVersion": 2,
-          "specSha": "5cd95cd25c0ff453be266794a03666e5e3f2d7a8",
-          "payload": "@supernovae-st/nika-darwin-arm64@0.124.0",
-          "payloadSha256": "8cb9065b250523f503404e88d70b2c2c263c2ef548edb9e7185a18efa58889a8",
+          "specSha": "810bb194a6bdbf3d7e4a5d3c4339a53edf47cac5",
+          "payload": "@nika-open/nika-darwin-arm64@0.125.2",
+          "payloadSha256": "82c128ecd4a05397913381e8b04809fe1fe9c51bf3003d2291413ff811d68e2f",
           "payloadMatchesIntegrityJson": true,
           "release": {
-            "tag": "v0.124.0",
-            "commit": "866ed914b1d582116fdb2b5934f7755b7222a8fc"
+            "tag": "v0.125.2",
+            "commit": "ae2d5f0b7f0e289f78780015c38f100dac5a1250"
           }
         },
-        "serve": "nika serve 0.124.0 (866ed914b) on a free loopback port, with a 0600 token file that was never printed and the scratch home's signing key",
+        "serve": "nika serve 0.125.2 (ae2d5f0b7) on a free loopback port, with a 0600 token file that was never printed and the scratch home's signing key",
         "serverDoor": {
-          "driver": "https://github.com/supernovae-st/nika/blob/866ed914b1d582116fdb2b5934f7755b7222a8fc/scripts/media/capture/sdk-doors/remote.mts",
+          "driver": "https://github.com/nika-open/nika/blob/7213e6e311ace56b1586eca08928dfe7e65238dd/scripts/media/capture/sdk-doors/remote.mts",
           "lines": [
             "const nika = new Nika({ url, token, allowInsecureHttp: true });",
             "const run = await nika.run<{ greeting: string }>('hello.nika', { idempotencyKey });"
@@ -623,22 +623,22 @@
         "model": "mock/echo (offline rehearsal, no key, no network)",
         "readmePrograms": {
           "hello.nika": "00489ec5d64d0152863d9ed622022c77bf20e81a2c5f302492f0ee0bef63453b",
-          "demo.mts": "9b6a8dc9ae95bed793577abd227f7414d705c82d44f4b0049c04d08049aa9aed",
+          "demo.mts": "e40a2f331f5ec7b15fbeb0052d54b38cfc430b0b155330107409d47ea7a7200f",
           "sameAsThisReadme": true
         },
         "raw": {
-          "media/raw/sdk-doors-versions.json": "75430d65733ce96fb1386a349bdb8a78f123370a3024524fc5df58a80b835c3b",
-          "media/raw/sdk-doors-local.json": "fdd3a384623d0748432fbb871271683127ebe7830f920e1fffb1b816e2e830c5",
-          "media/raw/sdk-doors-remote.json": "4a5020e05d0b6de4910a8c89470036fb87b2c518470bcbf982eaac48c6d0be6c",
-          "media/raw/sdk-doors-check.txt": "5048ad5d76312e2db64b5a720350219cdf0e0e1b2fb853b8abd6c81feb32220d",
+          "media/raw/sdk-doors-versions.json": "3cdcc54091d53dae045a0b19210c4a1a5b700f9e25bb61663b32e364bdb72d1c",
+          "media/raw/sdk-doors-local.json": "e70ace27562d65728d514a54f13e5daa60a6070992b666a96e6227afc33d041e",
+          "media/raw/sdk-doors-remote.json": "01ecc96e844d251080f9f59bf36efcd601f64b125ba189d5d5ee6d90f5d1fe89",
+          "media/raw/sdk-doors-check.txt": "58e747917487ce5c59f1ea1b17ee05bbda9906bb691570a6eb0c8a7302b709be",
           "media/raw/sdk-doors-check-red.txt": "c1ef0b711f4ecf7d9f22090016057be429a40c4c344642835daa4d986cd2a16c",
           "media/raw/sdk-doors-list-files.nika": "04424095f94e26fc6a1af98ebc52f5be75b9fff82c29a6777406ed7d5b89bf7e"
         }
       },
       "outputs": {
         "media/gifs/sdk-doors.gif": {
-          "bytes": 2830610,
-          "sha256": "6d3793d6d3225c50ab164e9fb717d864cd00382050b37a89c9f286deae71dbbb",
+          "bytes": 2830263,
+          "sha256": "db3fc5a600f015df07c07e709bbd85ca08510fd04f3f28a702f636e9edd8499e",
           "pipelineOutput": "media/gifs/sdk-doors.optimized.gif",
           "codec": "gif",
           "pixFmt": "bgra",
@@ -650,8 +650,8 @@
           "audioStreams": 0
         },
         "media/videos/sdk-doors.mp4": {
-          "bytes": 2179892,
-          "sha256": "32b8bb5986048b81448cb0629812b7963b5f946e61d2c059689035fbd3c688ac",
+          "bytes": 2176193,
+          "sha256": "e8d86099cda92961304e062c6d5496b3f4ab2a7e5ef6269f430bf837fbe63a21",
           "pipelineOutput": "media/videos/sdk-doors.mp4",
           "codec": "h264",
           "pixFmt": "yuv420p",
@@ -664,8 +664,8 @@
           "faststart": true
         },
         "media/stills/sdk-doors.png": {
-          "bytes": 586079,
-          "sha256": "1224ab0d2aacc9e817fe5bf25b200038a32b447a39568c0fcd807701ff748da7",
+          "bytes": 580890,
+          "sha256": "78961376d87aa3fab38320e039eb86a069157b6b97004aba292d178fea799b8d",
           "pipelineOutput": "media/posters/sdk-doors.png",
           "width": 1600,
           "height": 900,

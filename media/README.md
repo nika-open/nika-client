@@ -67,9 +67,9 @@ is an animated diagram of how the package runs a workflow through either door
 (README, "What happens underneath").
 
 - **Captured:** every line of code, event kind, verdict, hash, refusal code and
-  version on screen. They come from one capture on 27 October 2026 (UTC):
-  `@supernovae-st/nika@0.124.0` installed from the registry, its bundled
-  engine `nika 0.124.0 (866ed914b)`, and `nika serve` 0.124.0 on a loopback
+  version on screen. They come from one capture on 26 November 2026 (UTC):
+  `@nika-open/nika@0.125.2` installed from the registry, its bundled
+  engine `nika 0.125.2 (ae2d5f0b7)`, and `nika serve` 0.125.2 on a loopback
   port with a `0600` token file that was never printed, in a scratch `HOME`
   with `NIKA_KEYCHAIN=off`, running `mock/echo`. `demo.mts` and `hello.nika`
   on screen are the repository README's quick start, byte for byte, and the
@@ -83,15 +83,14 @@ is an animated diagram of how the package runs a workflow through either door
   takes 25 seconds and shows the two doors side by side, where the capture
   ran them one after the other.
 - **Rendered by** the engine repository's motion pipeline
-  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/v0.124.0/scripts/media/motion/intent-to-proof)
-  at the `v0.124.0` tag, `866ed914b`, whose clip and capture script are the
-  ones [nika-open/nika#1824](https://github.com/nika-open/nika/pull/1824)
-  added), which refuses to render when a captured fact changes; the render
-  passed the pipeline's strict readability audit. The capture
-  (`node scripts/media/capture/sdk-doors.mjs --version 0.124.0`) and the
-  render (`npm run clip -- sdk-doors`) ran from a copy of that tag, and
-  `media-sources.json` records the hashes of the clip, its capture script and
-  every capture file. This
+  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/7213e6e311ace56b1586eca08928dfe7e65238dd/scripts/media/motion/intent-to-proof)
+  at `7213e6e31`, where the clip and its capture script name `@nika-open/nika`),
+  which refuses to render when a captured fact changes; the render passed the
+  pipeline's strict readability audit. The capture
+  (`node scripts/media/capture/sdk-doors.mjs --version 0.125.2`) and the
+  render (`npm run clip -- sdk-doors`) ran from that commit, which also holds
+  the capture and these exports, and `media-sources.json` records the hashes
+  of the clip, its capture script and every capture file. This
   repository keeps the outputs only: the GIF is 960×540 at 12.5 frames per
   second (its code is texture at that size), the MP4 is 1600×900 at 30, with
   readable code, and the still is the settled last frame.
