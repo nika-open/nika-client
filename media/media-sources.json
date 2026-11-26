@@ -4,20 +4,20 @@
       "name": "sdk-quickstart",
       "sources": {
         "scripts/media/theme.tape": "cbd76c8daaae01d5de1700b876f11275093cc714573042f5014d8a75217db06e",
-        "scripts/media/sdk-quickstart.tape": "4ae8e3bad100d984e89b7bab22117dfbb853efdf3f98f0ae7521f70bf8fcf90c",
-        "scripts/media/render.mjs": "b0cfa589edf6c4da015d40aa0f682e9a0af66df5aa4c6c337bcfffb28425a1b1",
+        "scripts/media/sdk-quickstart.tape": "704735e4c03b4d47a65e416a88a361f2dee712c28d0757817a63e76152b3fd97",
+        "scripts/media/render.mjs": "ec1ef89d870dbb2bcc23005d28bd95755cfca5818247415cbf2b2adf1ea5c032",
         "scripts/media/scenes/sdk-quickstart/package.json": "a2ce14262d6613f4d0c36b0d92d0a8fae9bb14197a7e063b91611b5b0b903ca3"
       },
       "readmeFiles": {
         "hello.nika": "00489ec5d64d0152863d9ed622022c77bf20e81a2c5f302492f0ee0bef63453b",
-        "demo.mts": "9b6a8dc9ae95bed793577abd227f7414d705c82d44f4b0049c04d08049aa9aed"
+        "demo.mts": "e40a2f331f5ec7b15fbeb0052d54b38cfc430b0b155330107409d47ea7a7200f"
       },
       "preflight": {
         "readmeStepOne": [
-          "npm install @supernovae-st/nika",
+          "npm install @nika-open/nika",
           "NIKA_KEYCHAIN=off ./node_modules/.bin/nika key init   # once per machine: a key that signs each run's record"
         ],
-        "install": "added 2 packages in 874ms",
+        "install": "added 2 packages in 9s",
         "installed": [
           "nika",
           "nika-darwin-arm64"
@@ -27,7 +27,7 @@
           "receipt verified"
         ]
       },
-      "renderSeconds": 63.5,
+      "renderSeconds": 116.1,
       "leftoverServersStopped": [],
       "terminal": {
         "rows": 23,
@@ -39,52 +39,52 @@
       ],
       "outputs": {
         "media/gifs/sdk-quickstart.gif": {
-          "bytes": 349718,
-          "sha256": "87791a9b4aaa1410c34bc5f7694e16e1f52314cb8bae174dfda2f040062d1915",
+          "bytes": 351402,
+          "sha256": "fbf9c7e548c2ea7e517be81c53f714d3f590e9a3a79ad31517b411ca15dcbec3",
           "codec": "gif",
           "pixFmt": "bgra",
           "width": 1600,
           "height": 900,
-          "frames": 232,
-          "frameRate": "100/11",
-          "durationSeconds": 27.32,
+          "frames": 258,
+          "frameRate": "20/3",
+          "durationSeconds": 41.16,
           "audioStreams": 0
         },
         "media/videos/sdk-quickstart.mp4": {
-          "bytes": 273679,
-          "sha256": "840bd1791619e23f2160562f5b248c371036f21f1e707d5bfe88f2618ad68d07",
+          "bytes": 383412,
+          "sha256": "2b63906a040d1934d4cd50191db3f392653d7e9f1c10ec43866252cd9c8271fb",
           "codec": "h264",
           "pixFmt": "yuv420p",
           "width": 1600,
           "height": 900,
-          "frames": 683,
+          "frames": 1029,
           "frameRate": "25/1",
-          "durationSeconds": 27.32,
+          "durationSeconds": 41.16,
           "audioStreams": 0,
           "faststart": true
         },
         "media/stills/sdk-quickstart.png": {
-          "bytes": 73279,
-          "sha256": "d79e3104c117a75a312efa2a7398fb7e74871cfa5b1a0be515c286d330e2a07d",
+          "bytes": 72586,
+          "sha256": "e67fba5fa600adcb97a1e3c6dbc29882ee752be8075323f840d7353b8406941c",
           "width": 1600,
           "height": 900,
           "quantized": true
         },
         "media/transcripts/sdk-quickstart.txt": {
-          "bytes": 1625,
-          "sha256": "f4983c436b11c910028e589834470fe10f489d54e2c27ce2ce0ce4b6fbc76d3d"
+          "bytes": 1615,
+          "sha256": "21373ac71409a10a485fe02c8e60f51fc16138027c071590e79fdd5da9311711"
         }
       },
-      "renderedAt": "2026-10-27T22:50:50.986Z"
+      "renderedAt": "2026-11-26T17:41:49.325Z"
     },
     "sdk-events": {
       "name": "sdk-events",
       "sources": {
         "scripts/media/theme.tape": "cbd76c8daaae01d5de1700b876f11275093cc714573042f5014d8a75217db06e",
         "scripts/media/sdk-events.tape": "c13910c5d7cde58719ddf97c0a4c5af361170ad6de52e72db6bc10149fe26567",
-        "scripts/media/render.mjs": "b0cfa589edf6c4da015d40aa0f682e9a0af66df5aa4c6c337bcfffb28425a1b1",
+        "scripts/media/render.mjs": "ec1ef89d870dbb2bcc23005d28bd95755cfca5818247415cbf2b2adf1ea5c032",
         "scripts/media/scenes/sdk-events/brief.nika": "7fab820a81c35dae00d9aa2fcc3dbc22c415bacd380c6f513c0ef1116c2fb231",
-        "scripts/media/scenes/sdk-events/watch.mts": "6d6981866d90c3045996603bc06f6f5bab6fbcc63bd751d84b515a749dce1591",
+        "scripts/media/scenes/sdk-events/watch.mts": "823a6d6604d0e0209dbb86533de43b7df550a1a1598a8fbef9258edff0c657c2",
         "scripts/media/scenes/sdk-quickstart/package.json": "a2ce14262d6613f4d0c36b0d92d0a8fae9bb14197a7e063b91611b5b0b903ca3"
       },
       "readmeFiles": {},
@@ -99,17 +99,17 @@
           "0.0s  task.completed  audience",
           "0.0s  task.started    risks",
           "0.0s  task.completed  risks",
-          "2.0s  task.started    review",
-          "2.0s  engine.event    (permit_checked)",
-          "2.0s  task.completed  review",
-          "2.0s  task.started    brief",
-          "2.0s  task.completed  brief",
-          "2.0s  engine.event    (workflow_completed)",
-          "2.0s  run.settled     succeeded"
+          "2.2s  task.started    review",
+          "2.2s  engine.event    (permit_checked)",
+          "2.2s  task.completed  review",
+          "2.2s  task.started    brief",
+          "2.3s  task.completed  brief",
+          "2.3s  engine.event    (workflow_completed)",
+          "2.3s  run.settled     succeeded"
         ],
-        "reviewStartedAt": 2
+        "reviewStartedAt": 2.2
       },
-      "renderSeconds": 38.6,
+      "renderSeconds": 61.8,
       "leftoverServersStopped": [],
       "terminal": {
         "rows": 23,
@@ -121,56 +121,56 @@
       ],
       "outputs": {
         "media/gifs/sdk-events.gif": {
-          "bytes": 302921,
-          "sha256": "f8ec4e1d473c42914d89320f054d5e712b0219e955a3cd39dcf8815d5e5bea36",
+          "bytes": 302860,
+          "sha256": "cd77abf2cfe3aabbed3b9a9e6b0f22cc007775ba3f61e93583882cd2c4c29cf3",
           "codec": "gif",
           "pixFmt": "bgra",
           "width": 1600,
           "height": 900,
-          "frames": 86,
-          "frameRate": "100/19",
-          "durationSeconds": 16.36,
+          "frames": 85,
+          "frameRate": "5/1",
+          "durationSeconds": 17.32,
           "audioStreams": 0
         },
         "media/videos/sdk-events.mp4": {
-          "bytes": 218415,
-          "sha256": "6e5713f158dfc6dced6624f32a02b78eb60e0ca8330955b77411db2592364998",
+          "bytes": 220394,
+          "sha256": "e08fb8e00a208815acd9cb5816d0311a1c2be862aa79c9c54aaa2689427d63c0",
           "codec": "h264",
           "pixFmt": "yuv420p",
           "width": 1600,
           "height": 900,
-          "frames": 409,
+          "frames": 433,
           "frameRate": "25/1",
-          "durationSeconds": 16.36,
+          "durationSeconds": 17.32,
           "audioStreams": 0,
           "faststart": true
         },
         "media/stills/sdk-events.png": {
-          "bytes": 49605,
-          "sha256": "baad3134d7ec6a872e282071881870958834cd5c46c6e83aed3857c22d60e80e",
+          "bytes": 49679,
+          "sha256": "ccbff822e90dad7e49159ad54906b1da3db258803a241b272318177f84fcef45",
           "width": 1600,
           "height": 900,
           "quantized": true
         },
         "media/transcripts/sdk-events.txt": {
-          "bytes": 1755,
-          "sha256": "8a50044cc597bf87b1c7981a3fdb30890633fd8f110cd7705d58685c2f668aae"
+          "bytes": 1751,
+          "sha256": "61e87af96ba1f3ee4455a2dd357baece54d8d4e6585c3e2e13a6241a6eb8a275"
         }
       },
-      "renderedAt": "2026-10-27T22:51:35.180Z"
+      "renderedAt": "2026-11-26T17:43:17.604Z"
     },
     "sdk-admitted-executed-sealed": {
       "name": "sdk-admitted-executed-sealed",
       "sources": {
         "scripts/media/theme.tape": "cbd76c8daaae01d5de1700b876f11275093cc714573042f5014d8a75217db06e",
         "scripts/media/sdk-admitted-executed-sealed.tape": "12d56994a854c68718c90302e6de1292e2ebc853d12e353cc37b508c40b664a4",
-        "scripts/media/render.mjs": "b0cfa589edf6c4da015d40aa0f682e9a0af66df5aa4c6c337bcfffb28425a1b1",
+        "scripts/media/render.mjs": "ec1ef89d870dbb2bcc23005d28bd95755cfca5818247415cbf2b2adf1ea5c032",
         "scripts/media/scenes/sdk-admitted-executed-sealed/fixed/list-files.nika": "88219c073cd2ff99a582a17c0be5a93a9605c7e7d998fee9a71323d2532d8d5d",
-        "scripts/media/scenes/sdk-admitted-executed-sealed/gate.mts": "fef6ff53dbbd0b2d279a24b19d56e2210b75efe5d901d492137ab9f8c7ce53a2",
+        "scripts/media/scenes/sdk-admitted-executed-sealed/gate.mts": "5105d93296946fe0f5f30c980ffcf3193dcb2944867e43f747b38ed16432b1cf",
         "scripts/media/scenes/sdk-admitted-executed-sealed/list-files.nika": "04424095f94e26fc6a1af98ebc52f5be75b9fff82c29a6777406ed7d5b89bf7e",
-        "scripts/media/scenes/sdk-admitted-executed-sealed/prove.mts": "773826538125231666083fc1a4f67b7381595dd78240c8c2bf81f052c58d01ba",
+        "scripts/media/scenes/sdk-admitted-executed-sealed/prove.mts": "7f9b084936e77c87a169a7a1b0426a9814fe453dbdd9b9fbe476eb06135bb3a0",
         "scripts/media/scenes/sdk-admitted-executed-sealed/tamper.mts": "3dbc688ffd8de323240445e3a46b3ba5730317eefe00518cbc9d5fc62176ff53",
-        "scripts/media/scenes/sdk-admitted-executed-sealed/verify.mts": "033d9c82ca52e43d1145e6170f876ba4fb4050fb96e1b1bbffed6a5e60c5394b",
+        "scripts/media/scenes/sdk-admitted-executed-sealed/verify.mts": "d46f20a309a0b82730cea2f568cb4c50ae6c1e4168755e33d67ff1825c72fa42",
         "scripts/media/scenes/sdk-quickstart/package.json": "a2ce14262d6613f4d0c36b0d92d0a8fae9bb14197a7e063b91611b5b0b903ca3"
       },
       "readmeFiles": {
@@ -189,20 +189,20 @@
         ],
         "unsealed": [
           "run      succeeded · mock(echo) · Say hello from the Nika SDK.",
-          "receipt  sealed false · 5 events · head 340279e3cf49…",
+          "receipt  sealed false · 5 events · head 7c605cbcd4de…",
           "verify   not verified · invalid · receipt_mismatch"
         ],
         "sealed": [
           "run      succeeded · mock(echo) · Say hello from the Nika SDK.",
-          "receipt  sealed true · 6 events · head 12c0ce0e8c86…",
+          "receipt  sealed true · 6 events · head 7e69ded57f99…",
           "verify   verified"
         ],
         "broken": [
           "verify   not verified · invalid",
-          "engine   BROKEN at line 5 — recorded chain b1ec85fe5f9985d5 · computed 1a605d17b7b46e55"
+          "engine   BROKEN at line 5 — recorded chain 1ae7b8a12664e3e9 · computed ddba72059250e4c1"
         ]
       },
-      "renderSeconds": 89.9,
+      "renderSeconds": 130.1,
       "leftoverServersStopped": [],
       "terminal": {
         "rows": 23,
@@ -215,58 +215,58 @@
       ],
       "outputs": {
         "media/gifs/sdk-admitted-executed-sealed.gif": {
-          "bytes": 397894,
-          "sha256": "1c73c4f85bcd76014dd873486a2fdf1b033362f7a2143d5bdc4aeee459ee45d6",
+          "bytes": 407972,
+          "sha256": "b4541cff637f524140bdd46db1c74f11c34fbef4e1449f87c63a2521e86f1171",
           "codec": "gif",
           "pixFmt": "bgra",
           "width": 1600,
           "height": 900,
-          "frames": 357,
+          "frames": 364,
           "frameRate": "10/1",
-          "durationSeconds": 37.76,
+          "durationSeconds": 40,
           "audioStreams": 0
         },
         "media/videos/sdk-admitted-executed-sealed.mp4": {
-          "bytes": 353662,
-          "sha256": "8027a0219d7e5ed1984aae577a0a9a0d8b32e4c14dc40b54dc110fbaa97cac00",
+          "bytes": 387913,
+          "sha256": "2be01f518110e31a48f82ef6271108e0668e8574e52ebd8d66a15851dac73d34",
           "codec": "h264",
           "pixFmt": "yuv420p",
           "width": 1600,
           "height": 900,
-          "frames": 944,
+          "frames": 1000,
           "frameRate": "25/1",
-          "durationSeconds": 37.76,
+          "durationSeconds": 40,
           "audioStreams": 0,
           "faststart": true
         },
         "media/stills/sdk-check-refused.png": {
-          "bytes": 37563,
-          "sha256": "12f693160f91796991d69ec5e31f81b8fcf1359e2ee749f7091a19c7bd54daed",
+          "bytes": 38116,
+          "sha256": "96b99636a6e5b8b15f68e80fbbf676c27cfe95b2c00b408b30739e7a5aa5430e",
           "width": 1600,
           "height": 900,
           "quantized": true
         },
         "media/stills/sdk-admitted-executed-sealed.png": {
-          "bytes": 76030,
-          "sha256": "fb84248e2e365b5a0308cb854224ed3f9f2955ce8a80555039dfc6828a40ac73",
+          "bytes": 77268,
+          "sha256": "fc39c6dee0548d3ff65f135fd53dca382916ee7c146b389e46ad62fb84b36ca8",
           "width": 1600,
           "height": 900,
           "quantized": true
         },
         "media/transcripts/sdk-admitted-executed-sealed.txt": {
           "bytes": 1835,
-          "sha256": "24625819471b84bf3d38de42629b91c5309df64ef114610e5588f44bbd93da04"
+          "sha256": "22f48d6178ec1b23a36f003fa444ea3d4ba6c5178a3abea0e5b4efe605c5d339"
         }
       },
-      "renderedAt": "2026-10-27T22:53:09.392Z"
+      "renderedAt": "2026-11-26T17:45:55.483Z"
     },
     "sdk-compile": {
       "name": "sdk-compile",
       "sources": {
         "scripts/media/theme.tape": "cbd76c8daaae01d5de1700b876f11275093cc714573042f5014d8a75217db06e",
         "scripts/media/sdk-compile.tape": "5eae2ab6710bf2381c7e270d9a1fb013e12203d9d0c5318238ab33e65c0e9bcb",
-        "scripts/media/render.mjs": "b0cfa589edf6c4da015d40aa0f682e9a0af66df5aa4c6c337bcfffb28425a1b1",
-        "scripts/media/scenes/sdk-compile/author.mts": "d1648ec66a3ca0a119f20f5ae9b55f02bfe34ee24fa4f78d3d5608c3bfe0fb6a",
+        "scripts/media/render.mjs": "ec1ef89d870dbb2bcc23005d28bd95755cfca5818247415cbf2b2adf1ea5c032",
+        "scripts/media/scenes/sdk-compile/author.mts": "17eea13d42514f3b1ec3d423df0847c8cc9c31a334e413b282bc51d71f76af97",
         "scripts/media/scenes/sdk-compile/inbox/retro.md": "eee62a420f4b6ae3344f605b54850cde65983243dd6d46adc5844d516c2fa743",
         "scripts/media/scenes/sdk-compile/inbox/standup.md": "aa16598a402828161aa9f4d3e88e5a7985ae32da8a293d6375eb36e35a3dcbb5",
         "scripts/media/scenes/sdk-quickstart/package.json": "a2ce14262d6613f4d0c36b0d92d0a8fae9bb14197a7e063b91611b5b0b903ca3"
@@ -311,7 +311,7 @@
           "tasks:"
         ]
       },
-      "renderSeconds": 44.4,
+      "renderSeconds": 79.1,
       "leftoverServersStopped": [],
       "terminal": {
         "rows": 23,
@@ -323,33 +323,33 @@
       ],
       "outputs": {
         "media/gifs/sdk-compile.gif": {
-          "bytes": 262238,
-          "sha256": "8505d745f1e2bfbad24ac1408ac0d7b9a66f786dd4214a14317aacb822f8d62d",
+          "bytes": 258890,
+          "sha256": "9f627995a62509a712303d0bbe22a4f03709d9e8c76116bb9dc2d89f9cf64410",
           "codec": "gif",
           "pixFmt": "bgra",
           "width": 1600,
           "height": 900,
           "frames": 171,
           "frameRate": "100/11",
-          "durationSeconds": 19.04,
+          "durationSeconds": 20.36,
           "audioStreams": 0
         },
         "media/videos/sdk-compile.mp4": {
-          "bytes": 204078,
-          "sha256": "1cade18180dab6c20b4410f825c3fa25a58d3a4e8cfa805048e02e2431e03264",
+          "bytes": 193899,
+          "sha256": "fcd7040d5480a27fc0d068df3851e1b9a576d41113db8295aa4181aadff26eaf",
           "codec": "h264",
           "pixFmt": "yuv420p",
           "width": 1600,
           "height": 900,
-          "frames": 476,
+          "frames": 509,
           "frameRate": "25/1",
-          "durationSeconds": 19.04,
+          "durationSeconds": 20.36,
           "audioStreams": 0,
           "faststart": true
         },
         "media/stills/sdk-compile.png": {
-          "bytes": 40016,
-          "sha256": "20a9da9c6197efcb35dd4f0aac137fc3375a3377e2e76267fd807298fa5f8e79",
+          "bytes": 39420,
+          "sha256": "652761c218f9dbbd29c749bc221c209a82bb999b9729ca0f23f8a2709e58b8ee",
           "width": 1600,
           "height": 900,
           "quantized": true
@@ -359,24 +359,24 @@
           "sha256": "1b57cf34d16b9478146acac8d3cf5f91b8788bd4ff14197f240d6f78ff97c971"
         }
       },
-      "renderedAt": "2026-10-27T22:53:59.373Z"
+      "renderedAt": "2026-11-26T17:47:45.593Z"
     },
     "sdk-remote": {
       "name": "sdk-remote",
       "sources": {
         "scripts/media/theme.tape": "cbd76c8daaae01d5de1700b876f11275093cc714573042f5014d8a75217db06e",
         "scripts/media/sdk-remote.tape": "d513fdacda80e485db492ddf477e7bf4ac413b508f159532d519ef09737ee535",
-        "scripts/media/render.mjs": "b0cfa589edf6c4da015d40aa0f682e9a0af66df5aa4c6c337bcfffb28425a1b1",
-        "scripts/media/scenes/sdk-remote/remote.mts": "926876e91b6386c093009b651e66db7993a0487bf3b997b968679d1b69b00ce3",
+        "scripts/media/render.mjs": "ec1ef89d870dbb2bcc23005d28bd95755cfca5818247415cbf2b2adf1ea5c032",
+        "scripts/media/scenes/sdk-remote/remote.mts": "aa1136d1d547d785628a4fb86dbfde74a124f3766ff41188ec7c6b111e112ed5",
         "scripts/media/scenes/sdk-quickstart/package.json": "a2ce14262d6613f4d0c36b0d92d0a8fae9bb14197a7e063b91611b5b0b903ca3"
       },
       "readmeFiles": {
         "hello.nika": "00489ec5d64d0152863d9ed622022c77bf20e81a2c5f302492f0ee0bef63453b"
       },
       "preflight": {
-        "healthAfterMs": 223,
+        "healthAfterMs": 681,
         "health": {
-          "engineVersion": "0.124.0",
+          "engineVersion": "0.125.2",
           "machineProtocolVersion": 2,
           "supportedCapabilities": [
             "check",
@@ -384,9 +384,16 @@
             "eventStream",
             "cancel",
             "jobInputs",
+            "jobAttribution",
+            "jobList",
+            "occupancy",
+            "jobRetry",
             "compile",
             "artifacts",
-            "schedule"
+            "accessServiceTier",
+            "accessSessionOffer",
+            "schedule",
+            "scheduleManage"
           ]
         },
         "remote": [
@@ -401,7 +408,7 @@
           "bad token 401 unauthorized"
         ]
       },
-      "renderSeconds": 62,
+      "renderSeconds": 75.3,
       "leftoverServersStopped": [],
       "terminal": {
         "rows": 23,
@@ -413,78 +420,78 @@
       ],
       "outputs": {
         "media/gifs/sdk-remote.gif": {
-          "bytes": 350285,
-          "sha256": "f872fe923d910cd1a34cab09edd5c835f89e06b7ec0a84a205c75cc5abb7a715",
+          "bytes": 356018,
+          "sha256": "53b0ad41621f6cf592ef0023e2cd0134e8493c860b27ab41eef50a2fda891fde",
           "codec": "gif",
           "pixFmt": "bgra",
           "width": 1600,
           "height": 900,
-          "frames": 379,
+          "frames": 395,
           "frameRate": "100/7",
-          "durationSeconds": 28.16,
+          "durationSeconds": 31.04,
           "audioStreams": 0
         },
         "media/videos/sdk-remote.mp4": {
-          "bytes": 324288,
-          "sha256": "f79707959c87e3561447dc5bd9f64ff90fa38b9682d9c89bc63b2118a4903809",
+          "bytes": 365689,
+          "sha256": "734bd5af21c9fb236df349dbda266e2d4a26fe8f762762980bc57b82c08af474",
           "codec": "h264",
           "pixFmt": "yuv420p",
           "width": 1600,
           "height": 900,
-          "frames": 704,
+          "frames": 776,
           "frameRate": "25/1",
-          "durationSeconds": 28.16,
+          "durationSeconds": 31.04,
           "audioStreams": 0,
           "faststart": true
         },
         "media/stills/sdk-remote.png": {
-          "bytes": 31375,
-          "sha256": "99d7163c6f3f912fe29dd85c07355827fbeafb78f842028cbd18869f734e4b68",
+          "bytes": 31437,
+          "sha256": "d0d8e030bc266e4aaa10a3b210fd01269a16c78263ab4e8c602a26aae37c5308",
           "width": 1600,
           "height": 900,
           "quantized": true
         },
         "media/transcripts/sdk-remote.txt": {
           "bytes": 1228,
-          "sha256": "a470aabbbf5669cd99d5a6220fc732371cb163e4e2116826c1f14b95c1530959"
+          "sha256": "346f26f41a02a2daa1f7d42d6144115b6498ef165b816624810db9cb2f889292"
         }
       },
-      "renderedAt": "2026-10-27T22:55:05.499Z"
+      "renderedAt": "2026-11-26T17:49:33.203Z"
     }
   },
   "package": {
-    "name": "@supernovae-st/nika",
-    "version": "0.124.0",
+    "name": "@nika-open/nika",
+    "version": "0.125.2",
     "registry": "https://registry.npmjs.org/",
-    "resolved": "https://registry.npmjs.org/@supernovae-st/nika/-/nika-0.124.0.tgz",
-    "integrity": "sha512-9es/CUCNRqoZ1K6yq01ahJnPcMFH8OCscqrtSj15IQy1BjZHcEWN3Tmrp4JYrTBZZ4PVDWmWZOeScsylz5+9gQ==",
+    "resolved": "https://registry.npmjs.org/@nika-open/nika/-/nika-0.125.2.tgz",
+    "integrity": "sha512-+B8kY0vhDJrbNsjXBfJJLDVXobU9BLOIzpUBWHMNkbpRGsUoNvEOAWYTIiZtR0V8+JclqnT5uUvYYBkgGp3MUg==",
     "readme": {
-      "file": "@supernovae-st/nika@0.124.0/README.md",
-      "sha256": "503358a0fffa1b56ba27dd667cc2d756daaea378be3dfc0615faa0e17f5f1bb2",
+      "file": "@nika-open/nika@0.125.2/README.md",
+      "sha256": "a3e98bd69f714bcf688305e2c3268a165820bfa566ab10066785ab3ef88a34bb",
       "sameQuickStartPrograms": true
     },
     "payload": {
-      "name": "@supernovae-st/nika-darwin-arm64",
-      "version": "0.124.0",
-      "integrity": "sha512-NsrE9Fdp4Y7zQKE5x3eHT+yYLFqqNOxJkz/W/KQgltGcDsWc0a5S2/54ltk7ju+ppsPULQc7S5m5bnCsce4vcQ==",
-      "executableSha256": "8cb9065b250523f503404e88d70b2c2c263c2ef548edb9e7185a18efa58889a8",
+      "name": "@nika-open/nika-darwin-arm64",
+      "version": "0.125.2",
+      "integrity": "sha512-iSB0FugPcncLb0pjq4t4796Cjc8se3qXjrgjMEqw0sGpESV5g81G7jJCloXgY756WCGg3D9gGYGyZMoc2B927g==",
+      "executableSha256": "82c128ecd4a05397913381e8b04809fe1fe9c51bf3003d2291413ff811d68e2f",
       "matchesIntegrityJson": true,
       "releaseAsset": {
-        "file": "nika-macos-arm64-0.124.0.tar.gz",
-        "sha256": "e26e549fbd615730c3aea23bce332b54ceb4b0ee722ad040dfff7a223023c7f2"
+        "file": "nika-macos-arm64-0.125.2.tar.gz",
+        "sha256": "fcd162d05c650ce43fa4650ed180b2d38eec90f26139a6034fd7a64705fbc86e"
       },
       "source": {
-        "repository": "https://github.com/supernovae-st/nika",
-        "tag": "v0.124.0",
-        "commit": "866ed914b1d582116fdb2b5934f7755b7222a8fc",
-        "releaseAsset": "nika-macos-arm64-0.124.0.tar.gz",
-        "sourceArchive": "https://github.com/supernovae-st/nika/archive/refs/tags/v0.124.0.tar.gz"
+        "repository": "https://github.com/nika-open/nika",
+        "tag": "v0.125.2",
+        "commit": "ae2d5f0b7f0e289f78780015c38f100dac5a1250",
+        "releaseAsset": "nika-macos-arm64-0.125.2.tar.gz",
+        "sourceArchive": "https://github.com/nika-open/nika/archive/refs/tags/v0.125.2.tar.gz"
       }
     },
     "engine": {
-      "engineVersion": "0.124.0",
-      "buildSha": "866ed914b",
-      "specSha": "5cd95cd25c0ff453be266794a03666e5e3f2d7a8",
+      "engineVersion": "0.125.2",
+      "buildSha": "ae2d5f0b7",
+      "specSha": "810bb194a6bdbf3d7e4a5d3c4339a53edf47cac5",
       "machineProtocolVersion": 2,
       "supportedCapabilities": [
         "check",
@@ -492,6 +499,7 @@
         "eventStream",
         "trace",
         "inputsLiteral",
+        "accessServiceTier",
         "compile",
         "sessionHost",
         "sessionIntelligence",
@@ -501,19 +509,19 @@
     }
   },
   "tools": {
-    "vhs": "vhs version 0.11.0",
+    "vhs": "vhs version 0.12.1",
     "ttyd": "ttyd version 1.7.7-unknown",
-    "ffmpeg": "ffmpeg version 8.1.1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
     "gifsicle": "LCDF Gifsicle 1.96",
     "pngquant": "3.0.3",
     "node": "v22.22.2",
     "npm": "10.9.7",
-    "zsh": "zsh 5.9 (arm64-apple-darwin24.0)"
+    "zsh": "zsh 5.9 (arm64-apple-darwin26.0)"
   },
   "runner": {
     "os": "darwin",
     "arch": "arm64",
-    "release": "24.6.0"
+    "release": "27.3.0"
   },
   "environment": {
     "vars": [
@@ -552,7 +560,7 @@
     },
     "model": "mock/echo (offline rehearsal, no key, no network)"
   },
-  "generatedAt": "2026-10-27T22:55:05.672Z",
+  "generatedAt": "2026-11-26T17:49:33.479Z",
   "motion": {
     "sdk-doors": {
       "kind": "illustration",

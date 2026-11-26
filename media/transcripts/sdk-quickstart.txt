@@ -1,12 +1,12 @@
-$ npm install @supernovae-st/nika@0.124.0
+$ npm install @nika-open/nika@0.125.2
 
-added 2 packages in 863ms
-$ ls node_modules/@supernovae-st         # the client and its native engine
+added 2 packages in 12s
+$ ls node_modules/@nika-open             # the client and its native engine
 nika                    nika-darwin-arm64
 $ ./node_modules/.bin/nika --version
-nika 0.124.0 (866ed914b)
+nika 0.125.2 (ae2d5f0b7)
 $ NIKA_KEYCHAIN=off ./node_modules/.bin/nika key init   # once per machine: a key that signs each run's record
-run-signing key minted · fingerprint 20409f1ed2c887a6
+run-signing key minted · fingerprint ffbadc05215b3b2b
   every run on this machine now seals its journal (verify: nika trace verify <file>)
 $
 
@@ -28,7 +28,7 @@ $
 ── screen cleared ──
 
 $ cat demo.mts
-import { Nika, isNikaRunSucceeded } from '@supernovae-st/nika';
+import { Nika, isNikaRunSucceeded } from '@nika-open/nika';
 
 const nika = new Nika({ cwd: process.cwd() });
 

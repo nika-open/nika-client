@@ -10,9 +10,9 @@ None of this ships in the npm package.
 
 Five terminal recordings, rendered by [`scripts/media/render.mjs`](../scripts/media/render.mjs)
 from [VHS](https://github.com/charmbracelet/vhs) tapes that type real commands.
-Each one installs `@supernovae-st/nika@0.124.0` from the npm registry into a
+Each one installs `@nika-open/nika@0.125.2` from the npm registry into a
 fresh project; the engine is the one that package bundles,
-`nika 0.124.0 (866ed914b)`. Every model call is `mock/echo`, the engine's
+`nika 0.125.2 (ae2d5f0b7)`. Every model call is `mock/echo`, the engine's
 offline rehearsal model: no model key and no model call over the network.
 
 | Recording | What it shows | Tape and programs | Shown in |
@@ -38,10 +38,10 @@ text of every screen, in order.
   in its own copy (a preflight), and the render stops if what it is about no
   longer holds: for example, if `npm install` does not add exactly two
   packages, `node demo.mts` does not print the README's two lines, `run()`
-  starts a refused file, or `nika serve` does not answer as 0.124.0 with
+  starts a refused file, or `nika serve` does not answer as 0.125.2 with
   machine protocol 2. The quick start and server tapes must type the
   README's own commands; the quick start pins the version on camera
-  (`@0.124.0`) where the README installs the latest.
+  (`@0.125.2`) where the README installs the latest.
 - **Nothing of the machine.** A scratch `HOME` with no key and no
   configuration, `NIKA_KEYCHAIN=off`, an environment with no `*_API_KEY`,
   `*_TOKEN` or `*SECRET*` variable, and a `PATH` that cannot reach any other
@@ -57,7 +57,7 @@ text of every screen, in order.
 Values that change on every render: the npm install time, key fingerprints,
 chain hashes, job ids, trace file names and the server's process id. The
 recordings were made on macOS arm64, so the engine payload on screen is
-`@supernovae-st/nika-darwin-arm64`; on Linux it is `nika-linux-x64` or
+`@nika-open/nika-darwin-arm64`; on Linux it is `nika-linux-x64` or
 `nika-linux-arm64`.
 
 ## sdk-doors: an illustration
