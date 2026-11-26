@@ -1,7 +1,7 @@
 # Upgrading to 0.123
 
-`@nika-open/nika` 0.125.1 bundles engine 0.125.1
-(`nika 0.125.1 (db136e245)`) and speaks its machine protocol, **2**, as
+`@nika-open/nika` 0.125.2 bundles engine 0.125.2
+(`nika 0.125.2 (ae2d5f0b7)`) and speaks its machine protocol, **2**, as
 0.123 did. Engines and servers up to 0.122 speak protocol 1. Each package
 version pairs with one protocol generation, so the move from 0.120.x is one
 rule:
@@ -25,8 +25,8 @@ package refuses as a protocol error.
 0.125 keeps machine protocol 2 and changes no `nika serve` object this
 package reads closed. What its served document adds is new routes and new
 members of request bodies: `owner`, `labels` and `retry` on the by-name form
-of `POST /v1/jobs`, `owner` and `labels` on a schedule. The 0.125.0 and
-0.125.1 packages are the API of 0.124.5 on the new engine: they send none of
+of `POST /v1/jobs`, `owner` and `labels` on a schedule. The 0.125.0, 0.125.1
+and 0.125.2 packages are the API of 0.124.5 on the new engine: they send none of
 these members and have no method for these routes yet, which a later package
 version adds:
 
@@ -71,6 +71,21 @@ path, or one that climbs above the working directory with `..`, meets
 line, the run refuses the same delete before spawn. A delete inside the
 working directory stays admitted: name the path relative to it (`cwd:` sets
 it), or use `nika:remove_file` under a `permits.fs.write` bound. Run
+`./node_modules/.bin/nika check` on your workflows before you switch.
+
+0.125.2 is a corrective release on the same protocol and served document,
+and `nika check` refuses some files 0.125.1 accepted. A secret that reaches
+an `exec:` task's `cwd:`, a task's `model:`, an agent's `images.save:` path
+or the `args.model` of `nika:tts_generate` or `nika:image_generate` meets
+`NIKA-SEC-006` at check, whatever its `egress:`, and a run holding an older
+report refuses the task before it starts. Pass such a value through
+`inputs:` or `const:` instead. The check also follows a secret through a
+group fold, a recovered value and a `for_each:` item. In the kit, the run
+guard hook answers a deny with exit 2 and the verdict on stderr, the
+Cursor hooks files declare `version: 1` (a project an earlier `nika init`
+set up keeps its own `.cursor/hooks.json`: add the key by hand, or remove
+the file and run `nika init` again), and `nika init` and `nika compile`
+refuse with exit 3 to write through a link. Run
 `./node_modules/.bin/nika check` on your workflows before you switch.
 
 ## From 0.123 to 0.124: the same protocol
@@ -166,12 +181,12 @@ lists it):
 
 ## Steps
 
-1. **Update the package.** `npm install @nika-open/nika@0.125.1`, then
+1. **Update the package.** `npm install @nika-open/nika@0.125.2`, then
    check what you installed:
 
    ```sh
-   node -p "require('@nika-open/nika/package.json').version"       # 0.125.1
-   ./node_modules/.bin/nika --version                              # nika 0.125.1 (db136e245)
+   node -p "require('@nika-open/nika/package.json').version"       # 0.125.2
+   ./node_modules/.bin/nika --version                              # nika 0.125.2 (ae2d5f0b7)
    ```
 
 2. **Point `NIKA_BIN` at a 0.123 or later engine, or unset it.** An explicit `bin` or
@@ -179,25 +194,25 @@ lists it):
    command refuses a protocol-1 engine there too
    (`NIKA_BIN=<a 0.122 binary> npx nika --version` exits 1).
 
-3. **Upgrade each server.** Install engine 0.125.1 where your `nika serve`
+3. **Upgrade each server.** Install engine 0.125.2 where your `nika serve`
    runs (`brew install nika-open/tap/nika`,
    `curl -LsSf https://nika.sh/install.sh | sh`, or the container image
-   `ghcr.io/nika-open/nika:0.125.1`). Keep a copy of its state root first if
+   `ghcr.io/nika-open/nika:0.125.2`). Keep a copy of its state root first if
    you may need to go back to 0.124: the new server moves its job store to
    format 4, which older engines refuse. Stop the old server as usual
    (Ctrl-C drains running and queued jobs for up to 30 seconds), and start
    the new one with the same flags. Then check its identity:
 
    ```sh
-   curl -s http://127.0.0.1:8787/health   # "engineVersion":"0.125.1", "machineProtocolVersion":2
+   curl -s http://127.0.0.1:8787/health   # "engineVersion":"0.125.2", "machineProtocolVersion":2
    ```
 
 4. **Run your tests against the new pair.** Nothing in `check`, `run`,
    `events`, `result`, `cancel`, `attachRun`, `schedule` or `traceVerify`
    changed its signature: 0.123.0, 0.124.0 and 0.124.2 only add exports,
    0.124.1 one optional field, `verdicts.network_tasks`, 0.124.3 one
-   method, `accessOffer`, with its types, and 0.124.4, 0.124.5, 0.125.0
-   and 0.125.1 nothing. The changes are in the data those methods return:
+   method, `accessOffer`, with its types, and 0.124.4, 0.124.5, 0.125.0,
+   0.125.1 and 0.125.2 nothing. The changes are in the data those methods return:
    from 0.123, in the sections above; from 0.120.x, below.
 
 ## What changed in the data from 0.120
@@ -237,7 +252,8 @@ changes are in its release notes
 [0.124.4](https://github.com/nika-open/nika/releases/tag/v0.124.4),
 [0.124.5](https://github.com/nika-open/nika/releases/tag/v0.124.5),
 [0.125.0](https://github.com/nika-open/nika/releases/tag/v0.125.0),
-[0.125.1](https://github.com/nika-open/nika/releases/tag/v0.125.1)),
+[0.125.1](https://github.com/nika-open/nika/releases/tag/v0.125.1),
+[0.125.2](https://github.com/nika-open/nika/releases/tag/v0.125.2)),
 and what 0.125 does not do yet is on the
 [known limits](https://docs.nika.sh/changelog/known-limits) page.
 
