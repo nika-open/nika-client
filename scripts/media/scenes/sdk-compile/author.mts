@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { Nika, nextCompileRequest, type NikaCompileRequest } from '@supernovae-st/nika';
+import { Nika, nextCompileRequest, type NikaCompileRequest } from '@nika-open/nika';
 
 const nika = new Nika({ cwd: process.cwd() });
 const request: NikaCompileRequest = { intent: process.argv[2] ?? '' };

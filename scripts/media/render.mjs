@@ -4,7 +4,7 @@
 //   node scripts/media/render.mjs [--preflight-only] [tape ...]
 //
 // Honesty contract: every frame is real output of the published
-// @supernovae-st/nika package and the engine it bundles, run in a fresh
+// @nika-open/nika package and the engine it bundles, run in a fresh
 // scratch project, keyless (`mock/echo`). Nothing is typed into the output.
 // The renderer refuses to record when the story a tape tells no longer holds
 // (preflight), and refuses to publish a recording whose transcript misses a
@@ -15,7 +15,7 @@
 //  2. scenes/<tape>/ copied into app/, plus hello.nika and demo.mts extracted
 //     byte for byte from this repository's README (step 2 and step 3), the page
 //     that embeds the recordings;
-//  3. every tape except sdk-quickstart: `npm install @supernovae-st/nika@<version>`
+//  3. every tape except sdk-quickstart: `npm install @nika-open/nika@<version>`
 //     in app/, from the registry (never a checkout);
 //  4. the scene's preflight, in its own copy ($WORK/preflight), refuses to record
 //     if the story no longer holds (sdk-quickstart: also if the commands it types
@@ -59,10 +59,10 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(dirname(HERE));
 const MEDIA = join(ROOT, 'media');
 const PROJECTS = process.env.SDK_MEDIA_PROJECTS ?? join(tmpdir(), 'nika-sdk-media');
-const PACKAGE = '@supernovae-st/nika';
-const VERSION = process.env.SDK_MEDIA_VERSION ?? '0.124.0';
+const PACKAGE = '@nika-open/nika';
+const VERSION = process.env.SDK_MEDIA_VERSION ?? '0.125.2';
 // The captions name this exact build: a package that bundles another one is refused.
-const ENGINE_BUILD = process.env.SDK_MEDIA_BUILD ?? '866ed914b';
+const ENGINE_BUILD = process.env.SDK_MEDIA_BUILD ?? 'ae2d5f0b7';
 const ENGINE_VERSION_LINE = `nika ${VERSION} (${ENGINE_BUILD})`;
 const HOST_PAYLOAD = `nika-${platform()}-${arch()}`;
 const TAPES = ['sdk-quickstart', 'sdk-events', 'sdk-admitted-executed-sealed', 'sdk-compile', 'sdk-remote'];
@@ -202,7 +202,7 @@ function publishedPackage() {
   copyFileSync(join(HERE, 'scenes/sdk-quickstart/package.json'), join(app, 'package.json'));
   npmInstall(app, home);
   const root = join(app, 'node_modules', PACKAGE);
-  const payloadRoot = join(app, 'node_modules/@supernovae-st', HOST_PAYLOAD);
+  const payloadRoot = join(app, 'node_modules/@nika-open', HOST_PAYLOAD);
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   if (pkg.version !== VERSION) throw new Error(`installed ${pkg.version}, wanted ${VERSION}`);
   const lock = JSON.parse(readFileSync(join(app, 'package-lock.json'), 'utf8'));
@@ -244,9 +244,9 @@ function publishedPackage() {
           && Object.keys(readme.files).every((file) => readme.files[file] === published.files[file]),
       },
       payload: {
-        name: `@supernovae-st/${HOST_PAYLOAD}`,
+        name: `@nika-open/${HOST_PAYLOAD}`,
         version: JSON.parse(readFileSync(join(payloadRoot, 'package.json'), 'utf8')).version,
-        integrity: lock.packages[`node_modules/@supernovae-st/${HOST_PAYLOAD}`]?.integrity,
+        integrity: lock.packages[`node_modules/@nika-open/${HOST_PAYLOAD}`]?.integrity,
         executableSha256: integrity.executable.sha256,
         matchesIntegrityJson: true,
         releaseAsset: integrity.archive,
@@ -417,8 +417,8 @@ const SCENES = {
       expectExact(typed.find((line) => line.includes(' key init')), readmeKey, 'the tape mints the key with README step 1');
       const install = npmInstall(app, home);
       expect(install.stdout, /^added 2 packages in /m, 'npm install');
-      const installed = readdirSync(join(app, 'node_modules/@supernovae-st')).sort();
-      expectExact(installed.join(' '), `nika ${HOST_PAYLOAD}`, 'node_modules/@supernovae-st');
+      const installed = readdirSync(join(app, 'node_modules/@nika-open')).sort();
+      expectExact(installed.join(' '), `nika ${HOST_PAYLOAD}`, 'node_modules/@nika-open');
       expectExact(nika(['--version']).stdout.trim(), ENGINE_VERSION_LINE, 'nika --version');
       expect(nika(['key', 'init']).stdout, /^run-signing key minted · fingerprint [0-9a-f]{16}$/m, 'key init');
       if (!existsSync(join(home, '.nika/keys'))) throw new Error('preflight · key init left no file key under ~/.nika/keys');
@@ -434,7 +434,7 @@ const SCENES = {
       `npm install ${PACKAGE}@${VERSION}`, 'added 2 packages', HOST_PAYLOAD, ENGINE_VERSION_LINE,
       'NIKA_KEYCHAIN=off ./node_modules/.bin/nika key init', 'run-signing key minted', 'nika: hello',
       'prompt: "Say hello from the Nika SDK."',
-      "import { Nika, isNikaRunSucceeded } from '@supernovae-st/nika';",
+      "import { Nika, isNikaRunSucceeded } from '@nika-open/nika';",
       'mock(echo) · Say hello from the Nika SDK.', 'receipt verified',
     ],
   },
@@ -529,7 +529,7 @@ const SCENES = {
       expect(author, 'check    clean · exit 0 · kept as digest.nika', 'candidate checks clean');
       // Off camera: both rounds are generation 1 with deterministic cognition.
       writeFileSync(join(app, 'probe.mjs'), [
-        "import { Nika, nextCompileRequest } from '@supernovae-st/nika';",
+        "import { Nika, nextCompileRequest } from '@nika-open/nika';",
         'const nika = new Nika({ cwd: process.cwd() });',
         'const request = { intent: process.argv[2] };',
         'const first = await nika.compile(request);',

@@ -9,7 +9,7 @@ $
 ── screen cleared ──
 
 $ cat watch.mts
-import { Nika } from '@supernovae-st/nika';
+import { Nika } from '@nika-open/nika';
 
 const nika = new Nika({ cwd: process.cwd() });
 const run = await nika.run<{ brief: string }>('brief.nika', { maxCostUsd: 0 });

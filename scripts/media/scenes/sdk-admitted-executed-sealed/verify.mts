@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { Nika } from '@supernovae-st/nika';
+import { Nika } from '@nika-open/nika';
 
 // Later, from the receipt you stored: the engine re-reads the trace, it never re-runs it.
 const receipt = JSON.parse(await readFile('receipt.json', 'utf8'));

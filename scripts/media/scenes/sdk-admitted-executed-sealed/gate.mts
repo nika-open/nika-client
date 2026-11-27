@@ -1,4 +1,4 @@
-import { Nika, NikaOperationError, type NikaCheckFinding } from '@supernovae-st/nika';
+import { Nika, NikaOperationError, type NikaCheckFinding } from '@nika-open/nika';
 
 const file = process.argv[2] ?? 'list-files.nika';
 const nika = new Nika({ cwd: process.cwd() });

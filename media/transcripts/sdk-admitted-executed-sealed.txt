@@ -18,8 +18,8 @@ $
 ── screen cleared ──
 
 $ diff -u list-files.nika fixed/list-files.nika
---- list-files.nika     2026-10-28 02:51:37
-+++ fixed/list-files.nika       2026-10-28 02:51:37
+--- list-files.nika     2026-11-26 21:43:31
++++ fixed/list-files.nika       2026-11-26 21:43:31
 @@ -1,6 +1,7 @@
  nika: list-files
  model: mock/echo
@@ -38,18 +38,18 @@ $
 
 $ node prove.mts                     # this machine has no signing key yet
 run      succeeded · mock(echo) · Say hello from the Nika SDK.
-receipt  sealed false · 5 events · head 55e042aada2a…
+receipt  sealed false · 5 events · head 1fed182ad3f4…
 verify   not verified · invalid · receipt_mismatch
 $ NIKA_KEYCHAIN=off ./node_modules/.bin/nika key init   # quick start, step 1
-run-signing key minted · fingerprint c6cfe0d87cd05c36
+run-signing key minted · fingerprint a0f45f2d063d09c2
   every run on this machine now seals its journal (verify: nika trace verify <file>)
 $ node prove.mts
 run      succeeded · mock(echo) · Say hello from the Nika SDK.
-receipt  sealed true · 6 events · head 0b7dc5f6bb57…
+receipt  sealed true · 6 events · head ccb6b947a892…
 verify   verified
 $ node tamper.mts
-changed one byte on line 4 of .nika/traces/2026-10-27T22-52-11Z-26c1.ndjson
+changed one byte on line 4 of .nika/traces/2026-11-26T17-44-25Z-a44a.ndjson
 $ node verify.mts                             # later, from the receipt you stored
 verify   not verified · invalid
-engine   BROKEN at line 5 — recorded chain f722b19fc6123af8 · computed 72aa27b20f08f24b
+engine   BROKEN at line 5 — recorded chain 01897e9196f195d0 · computed 4eee5b245c407826
 $

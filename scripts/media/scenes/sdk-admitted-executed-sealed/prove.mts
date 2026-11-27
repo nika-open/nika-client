@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { Nika, isNikaRunSucceeded } from '@supernovae-st/nika';
+import { Nika, isNikaRunSucceeded } from '@nika-open/nika';
 
 const nika = new Nika({ cwd: process.cwd() });
 const run = await nika.run<{ greeting: string }>('hello.nika', { maxCostUsd: 0 });

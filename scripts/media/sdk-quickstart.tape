@@ -19,13 +19,13 @@ Enter
 Sleep 400ms
 Show
 
-Type "npm install @supernovae-st/nika@0.124.0"
+Type "npm install @nika-open/nika@0.125.2"
 Sleep 300ms
 Enter
 Wait@120s
 Sleep 900ms
 
-Type "ls node_modules/@supernovae-st         # the client and its native engine"
+Type "ls node_modules/@nika-open             # the client and its native engine"
 Enter
 Sleep 1.6s
 

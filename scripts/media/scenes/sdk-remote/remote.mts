@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { Nika, NikaOperationError } from '@supernovae-st/nika';
+import { Nika, NikaOperationError } from '@nika-open/nika';
 
 const url = process.env.NIKA_URL ?? 'http://127.0.0.1:8787';
 const token = (await readFile('.nika/serve.token', 'utf8')).trim();

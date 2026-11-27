@@ -10,9 +10,9 @@ None of this ships in the npm package.
 
 Five terminal recordings, rendered by [`scripts/media/render.mjs`](../scripts/media/render.mjs)
 from [VHS](https://github.com/charmbracelet/vhs) tapes that type real commands.
-Each one installs `@supernovae-st/nika@0.124.0` from the npm registry into a
+Each one installs `@nika-open/nika@0.125.2` from the npm registry into a
 fresh project; the engine is the one that package bundles,
-`nika 0.124.0 (866ed914b)`. Every model call is `mock/echo`, the engine's
+`nika 0.125.2 (ae2d5f0b7)`. Every model call is `mock/echo`, the engine's
 offline rehearsal model: no model key and no model call over the network.
 
 | Recording | What it shows | Tape and programs | Shown in |
@@ -38,10 +38,10 @@ text of every screen, in order.
   in its own copy (a preflight), and the render stops if what it is about no
   longer holds: for example, if `npm install` does not add exactly two
   packages, `node demo.mts` does not print the README's two lines, `run()`
-  starts a refused file, or `nika serve` does not answer as 0.124.0 with
+  starts a refused file, or `nika serve` does not answer as 0.125.2 with
   machine protocol 2. The quick start and server tapes must type the
   README's own commands; the quick start pins the version on camera
-  (`@0.124.0`) where the README installs the latest.
+  (`@0.125.2`) where the README installs the latest.
 - **Nothing of the machine.** A scratch `HOME` with no key and no
   configuration, `NIKA_KEYCHAIN=off`, an environment with no `*_API_KEY`,
   `*_TOKEN` or `*SECRET*` variable, and a `PATH` that cannot reach any other
@@ -57,7 +57,7 @@ text of every screen, in order.
 Values that change on every render: the npm install time, key fingerprints,
 chain hashes, job ids, trace file names and the server's process id. The
 recordings were made on macOS arm64, so the engine payload on screen is
-`@supernovae-st/nika-darwin-arm64`; on Linux it is `nika-linux-x64` or
+`@nika-open/nika-darwin-arm64`; on Linux it is `nika-linux-x64` or
 `nika-linux-arm64`.
 
 ## sdk-doors: an illustration
@@ -67,9 +67,9 @@ is an animated diagram of how the package runs a workflow through either door
 (README, "What happens underneath").
 
 - **Captured:** every line of code, event kind, verdict, hash, refusal code and
-  version on screen. They come from one capture on 27 October 2026 (UTC):
-  `@supernovae-st/nika@0.124.0` installed from the registry, its bundled
-  engine `nika 0.124.0 (866ed914b)`, and `nika serve` 0.124.0 on a loopback
+  version on screen. They come from one capture on 26 November 2026 (UTC):
+  `@nika-open/nika@0.125.2` installed from the registry, its bundled
+  engine `nika 0.125.2 (ae2d5f0b7)`, and `nika serve` 0.125.2 on a loopback
   port with a `0600` token file that was never printed, in a scratch `HOME`
   with `NIKA_KEYCHAIN=off`, running `mock/echo`. `demo.mts` and `hello.nika`
   on screen are the repository README's quick start, byte for byte, and the
@@ -83,15 +83,14 @@ is an animated diagram of how the package runs a workflow through either door
   takes 25 seconds and shows the two doors side by side, where the capture
   ran them one after the other.
 - **Rendered by** the engine repository's motion pipeline
-  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/v0.124.0/scripts/media/motion/intent-to-proof)
-  at the `v0.124.0` tag, `866ed914b`, whose clip and capture script are the
-  ones [nika-open/nika#1824](https://github.com/nika-open/nika/pull/1824)
-  added), which refuses to render when a captured fact changes; the render
-  passed the pipeline's strict readability audit. The capture
-  (`node scripts/media/capture/sdk-doors.mjs --version 0.124.0`) and the
-  render (`npm run clip -- sdk-doors`) ran from a copy of that tag, and
-  `media-sources.json` records the hashes of the clip, its capture script and
-  every capture file. This
+  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/4962e0cf5631ebb6ad69242b7a3d87e77a89ce15/scripts/media/motion/intent-to-proof)
+  at `4962e0cf5`, the merge of nika-open/nika#1936, where the clip and its capture script name `@nika-open/nika`),
+  which refuses to render when a captured fact changes; the render passed the
+  pipeline's strict readability audit. The capture
+  (`node scripts/media/capture/sdk-doors.mjs --version 0.125.2`) and the
+  render (`npm run clip -- sdk-doors`) ran from that commit, which also holds
+  the capture and these exports, and `media-sources.json` records the hashes
+  of the clip, its capture script and every capture file. This
   repository keeps the outputs only: the GIF is 960×540 at 12.5 frames per
   second (its code is texture at that size), the MP4 is 1600×900 at 30, with
   readable code, and the still is the settled last frame.
