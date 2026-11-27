@@ -571,7 +571,7 @@
         "repository": "https://github.com/nika-open/nika",
         "path": "scripts/media/motion/intent-to-proof",
         "tag": null,
-        "commit": "7213e6e311ace56b1586eca08928dfe7e65238dd",
+        "commit": "4962e0cf5631ebb6ad69242b7a3d87e77a89ce15",
         "clip": {
           "file": "scripts/media/motion/intent-to-proof/clips/sdk-doors.mjs",
           "sha256": "bd69c0927a4cb2c276fd99d9d216995dc93b71363ff8edbdf6c32abb44caf7d3"
@@ -580,7 +580,7 @@
           "file": "scripts/media/capture/sdk-doors.mjs",
           "sha256": "0d2d45aa473520e183f885b27bc05aa9343535b7a50ecefe3f216d620ad70962"
         },
-        "note": "run from the engine repository at 7213e6e31, on top of main 1f1191b64: its clip, capture script and drivers name @nika-open/nika (at the v0.125.2 tag they still install @supernovae-st/nika, which gets no 0.125 release), and that commit also holds this capture and these exports",
+        "note": "the engine change nika-open/nika#1936, merged as 4962e0cf5: its clip, capture script and drivers name @nika-open/nika (at the v0.125.2 tag they still install @supernovae-st/nika, which gets no 0.125 release); the capture ran on that change before its merge, from the same clip and capture bytes (the sha256 above), and the merge also holds this capture and these exports",
         "checks": "the clip refuses to render when a captured fact changes; strict readability audit passed (29 must-read lines, none below the reading floor)"
       },
       "capture": {
@@ -608,7 +608,7 @@
         },
         "serve": "nika serve 0.125.2 (ae2d5f0b7) on a free loopback port, with a 0600 token file that was never printed and the scratch home's signing key",
         "serverDoor": {
-          "driver": "https://github.com/nika-open/nika/blob/7213e6e311ace56b1586eca08928dfe7e65238dd/scripts/media/capture/sdk-doors/remote.mts",
+          "driver": "https://github.com/nika-open/nika/blob/4962e0cf5631ebb6ad69242b7a3d87e77a89ce15/scripts/media/capture/sdk-doors/remote.mts",
           "lines": [
             "const nika = new Nika({ url, token, allowInsecureHttp: true });",
             "const run = await nika.run<{ greeting: string }>('hello.nika', { idempotencyKey });"

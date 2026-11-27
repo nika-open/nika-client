@@ -83,8 +83,8 @@ is an animated diagram of how the package runs a workflow through either door
   takes 25 seconds and shows the two doors side by side, where the capture
   ran them one after the other.
 - **Rendered by** the engine repository's motion pipeline
-  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/7213e6e311ace56b1586eca08928dfe7e65238dd/scripts/media/motion/intent-to-proof)
-  at `7213e6e31`, where the clip and its capture script name `@nika-open/nika`),
+  ([`scripts/media/motion/intent-to-proof`](https://github.com/nika-open/nika/tree/4962e0cf5631ebb6ad69242b7a3d87e77a89ce15/scripts/media/motion/intent-to-proof)
+  at `4962e0cf5`, the merge of nika-open/nika#1936, where the clip and its capture script name `@nika-open/nika`),
   which refuses to render when a captured fact changes; the render passed the
   pipeline's strict readability audit. The capture
   (`node scripts/media/capture/sdk-doors.mjs --version 0.125.2`) and the
