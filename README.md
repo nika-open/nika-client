@@ -1,8 +1,12 @@
 <p align="center">
   <a href="https://nika.sh">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://nika.sh/brand/nika-logo-dark.svg">
-      <img src="https://nika.sh/brand/nika-logo-light.svg" alt="Nika" width="220">
+      <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-dark.png?v=11335e7bb6b5">
+      <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-light.png?v=eddfcbe70cf8">
+      <source media="(prefers-color-scheme: dark)" type="image/webp" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-dark.webp?v=cef00b0bd16e">
+      <source type="image/webp" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-light.webp?v=2d02f0b02a96">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-dark.gif?v=5b468669b7ec">
+      <img src="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/banner-nika-client-light.gif?v=1bf9b13e1395" alt="Nika. From TypeScript. Run workflows from your app. Checked before they start, typed when they finish, verifiable afterwards: the Nika engine ships inside the package." width="100%">
     </picture>
   </a>
 </p>
@@ -18,7 +22,7 @@
   <a href="https://www.npmjs.com/package/@nika-open/nika"><img src="https://img.shields.io/npm/v/@nika-open/nika?label=npm" alt="npm version"></a>
   <a href="https://github.com/nika-open/nika-client/actions/workflows/ci.yml"><img src="https://github.com/nika-open/nika-client/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
   <a href="https://github.com/nika-open/nika/releases/latest"><img src="https://img.shields.io/github/v/release/nika-open/nika?label=engine" alt="Engine release"></a>
-  <a href="https://docs.nika.sh"><img src="https://img.shields.io/badge/docs-docs.nika.sh-8b8cf8.svg" alt="Documentation"></a>
+  <a href="https://docs.nika.sh"><img src="https://img.shields.io/badge/docs-docs.nika.sh-2650ff.svg" alt="Documentation"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="Apache-2.0"></a>
   <br>
   <a href="https://scorecard.dev/viewer/?uri=github.com/nika-open/nika-client"><img src="https://api.scorecard.dev/projects/github.com/nika-open/nika-client/badge" alt="OpenSSF Scorecard"></a>
@@ -770,6 +774,13 @@ the tools and the rules.
 
 <!-- city:map -->
 ## 🦋 The Nika family
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/family-dark.png?v=4cfc8ec611de">
+    <img src="https://raw.githubusercontent.com/nika-open/.github/main/profile/assets/family-light.png?v=dfedffa46450" alt="The repositories of Nika. The language and its engine: nika-spec and nika. From the tools you already use: nika-plugins, nika-vscode, nika-client and gh-nika. On every pull request, and beyond: nika-action, nika-actions-starter, nika-registry, homebrew-tap, nika-estate and nika-docs." width="100%">
+  </picture>
+</p>
 
 | | Repository | What it gives you |
 |---|---|---|
